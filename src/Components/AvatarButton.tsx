@@ -1,11 +1,14 @@
 import { Avatar, IconButton, Menu, MenuItem } from '@mui/material';
 import PersonIcon from '@mui/icons-material/Person';
 import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { ROUTES } from '../constants';
 
 export default function AvatarButton() {
 	const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
 	const [isLoggedin, setIsLoggedin] = useState<boolean>(true);
 	const open = Boolean(anchorEl);
+	const navigate = useNavigate();
 	const handleClick = (event: React.MouseEvent<HTMLButtonElement>) => {
 		setAnchorEl(event.currentTarget);
 	};
@@ -39,7 +42,7 @@ export default function AvatarButton() {
 			>
 				{isLoggedin ? (
 					<>
-						<MenuItem onClick={handleClose}>Profilio nustatymai</MenuItem>
+						<MenuItem onClick={() => navigate(ROUTES.ProfilePage)}>Profilio nustatymai</MenuItem>
 						<MenuItem onClick={handleClose}>Mano rezervacijos</MenuItem>
 						<MenuItem onClick={handleClose}>Admin puslapis</MenuItem>
 						<MenuItem onClick={handleLogOut}>Atsijungti</MenuItem>
