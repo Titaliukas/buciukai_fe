@@ -38,7 +38,7 @@ export default function HotelCard({ hotel }: HotelCardProps) {
 					</Typography>
 					<Typography>Kaunas, Lietuva</Typography>
 					<Typography variant='h6' sx={{ mt: 1, fontWeight: 'bold' }}>
-						70€
+						Nuo 70€
 					</Typography>
 				</Box>
 

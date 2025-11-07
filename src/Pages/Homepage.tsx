@@ -1,7 +1,7 @@
-import { Box, Container, Typography, Avatar } from '@mui/material';
+import { Box, Container, Typography } from '@mui/material';
 import SearchBar from '../Components/SearchBar';
-import PersonIcon from '@mui/icons-material/Person';
 import HotelCard from '../Components/HotelCard';
+import AvatarButton from '../Components/AvatarButton';
 
 const hotelList = ['Viešbutis 1', 'Viešbutis 2', 'Viešbutis 3'];
 
@@ -24,9 +24,7 @@ export default function HomePage() {
 						<Typography variant='h5' sx={{ fontWeight: 'bold' }}>
 							Bučiukai
 						</Typography>
-						<Avatar>
-							<PersonIcon />
-						</Avatar>
+						<AvatarButton />
 					</Box>
 
 					{/* Title */}
