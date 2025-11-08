@@ -1,8 +1,9 @@
 import { Avatar, IconButton, Menu, MenuItem } from '@mui/material';
 import PersonIcon from '@mui/icons-material/Person';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ROUTES } from '../constants';
+import ConfirmModal from './ConfirmModal';
 
 export default function AvatarButton() {
 	const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
@@ -21,6 +22,23 @@ export default function AvatarButton() {
 			setIsLoggedin(false);
 		}, 200);
 	};
+
+	const [openModal, setOpenModal] = useState(false);
+	const [confirmedModal, setConfirmedModal] = useState<boolean | null>(null);
+
+	const handleOpenModal = () => setOpenModal(true);
+	const handleCloseModal = () => setOpenModal(false);
+
+	const handleResultModal = (value: boolean) => {
+		setConfirmedModal(value);
+	};
+
+	useEffect(() => {
+		if (confirmedModal === true) {
+			handleLogOut();
+			setConfirmedModal(null);
+		}
+	}, [confirmedModal]);
 
 	return (
 		<>
@@ -45,7 +63,16 @@ export default function AvatarButton() {
 						<MenuItem onClick={() => navigate(ROUTES.ProfilePage)}>Profilio nustatymai</MenuItem>
 						<MenuItem onClick={handleClose}>Mano rezervacijos</MenuItem>
 						<MenuItem onClick={handleClose}>Admin puslapis</MenuItem>
-						<MenuItem onClick={handleLogOut}>Atsijungti</MenuItem>
+						<MenuItem onClick={handleOpenModal}>Atsijungti</MenuItem>
+						<ConfirmModal
+							open={openModal}
+							handleClose={handleCloseModal}
+							onResult={handleResultModal}
+							title='Patvirtinimas'
+							description='Ar tikrai norite atsijungti?'
+							cancelButton='Ne'
+							confirmButton='Taip, atsijungti'
+						/>
 					</>
 				) : (
 					<>
