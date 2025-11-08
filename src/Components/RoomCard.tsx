@@ -1,20 +1,17 @@
 import { Box, Button, Paper, Typography } from '@mui/material';
-import Hotel from '../types/Hotel';
-import { useNavigate } from 'react-router-dom';
+import Room from '../types/Room';
 
-type HotelCardProps = {
-	hotel: Hotel;
+type Props = {
+	room: Room;
 };
 
-export default function HotelCard({ hotel }: HotelCardProps) {
-	const navigate = useNavigate();
-
+export default function RoomCard({ room }: Props) {
 	return (
 		<Paper elevation={3} sx={{ borderRadius: 1, mb: 2, overflow: 'hidden' }}>
 			<Box
 				component='img'
-				src='https://dynamic-media-cdn.tripadvisor.com/media/photo-o/14/a5/8b/9a/the-kayon-jungle-resort.jpg?w=1400&h=-1&s=1'
-				alt='Hotel'
+				src='https://dynamic-media-cdn.tripadvisor.com/media/photo-o/2c/b0/c1/4c/boutique-hotels.jpg?w=1200&h=-1&s=1'
+				alt='Room'
 				sx={{
 					width: '100%',
 					height: 200,
@@ -38,11 +35,10 @@ export default function HotelCard({ hotel }: HotelCardProps) {
 			>
 				<Box>
 					<Typography variant='h6' fontWeight='bold'>
-						{hotel.name}
+						{room.type}
 					</Typography>
-					<Typography>{hotel.location}</Typography>
 					<Typography variant='h6' sx={{ mt: 1, fontWeight: 'bold' }}>
-						Nuo {hotel.lowestPrice}€
+						{room.price}€
 					</Typography>
 				</Box>
 
@@ -54,7 +50,7 @@ export default function HotelCard({ hotel }: HotelCardProps) {
 						mt: 2,
 						'&:hover': { bgcolor: '#2e2abf' },
 					}}
-					onClick={() => navigate(`/hotel/${hotel.id}/rooms`)}
+					onClick={() => {}}
 				>
 					Peržiūrėti
 				</Button>
