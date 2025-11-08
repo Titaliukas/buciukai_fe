@@ -22,6 +22,9 @@ export default function NavBar() {
 						<Button color='inherit' variant='text' onClick={() => navigate(ROUTES.HomePage)}>
 							Pradžia
 						</Button>
+						<Button color='inherit' variant='text' onClick={() => navigate(ROUTES.ReservationsPage)}>	
+							Rezervacijos
+						</Button>
 					</Box>
 					<AvatarButton />
 				</Toolbar>

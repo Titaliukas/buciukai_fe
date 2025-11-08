@@ -6,4 +6,5 @@ export const ROUTES = {
 	ResetPasswordPage: '/resetpass',
 	NewPasswordPage: '/resetpass/newpass',
 	RoomsListPage: '/hotel/:hotelId/rooms',
+	ReservationsPage: '/user/:userId/reservations',
 };
