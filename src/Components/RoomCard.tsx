@@ -1,4 +1,5 @@
-import { Box, Button, Paper, Typography } from '@mui/material';
+import { Box, Button, Paper, Typography, IconButton } from '@mui/material';
+import EditIcon from '@mui/icons-material/Edit';
 import Room from '../types/Room';
 
 type Props = {
@@ -6,21 +7,50 @@ type Props = {
 };
 
 export default function RoomCard({ room }: Props) {
-	return (
-		<Paper elevation={3} sx={{ borderRadius: 1, mb: 2, overflow: 'hidden' }}>
-			<Box
-				component='img'
-				src='https://dynamic-media-cdn.tripadvisor.com/media/photo-o/2c/b0/c1/4c/boutique-hotels.jpg?w=1200&h=-1&s=1'
-				alt='Room'
-				sx={{
-					width: '100%',
-					height: 200,
-					objectFit: 'cover',
-					borderTopLeftRadius: 1,
-					borderTopRightRadius: 1,
-					display: 'block',
-				}}
-			/>
+		return (
+			<Paper elevation={3} sx={{ borderRadius: 1, mb: 2, overflow: 'hidden' }}>
+				{/* Image container with relative positioning so we can overlay buttons */}
+				<Box sx={{ position: 'relative' }}>
+					<Box
+						component='img'
+						src='https://dynamic-media-cdn.tripadvisor.com/media/photo-o/2c/b0/c1/4c/boutique-hotels.jpg?w=1200&h=-1&s=1'
+						alt='Room'
+						sx={{
+							width: '100%',
+							height: 200,
+							objectFit: 'cover',
+							borderTopLeftRadius: 1,
+							borderTopRightRadius: 1,
+							display: 'block',
+						}}
+					/>
+
+					{/* Overlay: top-right corner buttons */}
+					<Box
+						sx={{
+							position: 'absolute',
+							top: 8,
+							right: 8,
+							display: 'flex',
+							gap: 1,
+							zIndex: 2,
+						}}
+					>
+						<IconButton
+							size='small'
+							aria-label='Įterpti laikus'
+							onClick={() => {}}
+							sx={{
+								color: 'black',
+								bgcolor: 'transparent',
+								'&:hover': { backdropFilter: 'blur(2px)' },
+								boxShadow: 'none',
+							}}
+						>
+							<EditIcon fontSize='medium'/>
+						</IconButton>
+					</Box>
+				</Box>
 			<Box
 				sx={{
 					display: 'flex',
@@ -42,7 +72,7 @@ export default function RoomCard({ room }: Props) {
 					</Typography>
 				</Box>
 
-				<Button
+        <Button
 					variant='contained'
 					sx={{
 						bgcolor: '#3A35DD',
@@ -52,7 +82,7 @@ export default function RoomCard({ room }: Props) {
 					}}
 					onClick={() => {}}
 				>
-					Peržiūrėti
+					Rezervuoti
 				</Button>
 			</Box>
 		</Paper>
