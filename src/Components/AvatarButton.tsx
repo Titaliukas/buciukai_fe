@@ -76,7 +76,7 @@ export default function AvatarButton() {
 					</>
 				) : (
 					<>
-						<MenuItem onClick={handleClose}>Prisijungti</MenuItem>
+						<MenuItem onClick={() => navigate(ROUTES.SignInPage)}>Prisijungti</MenuItem>
 					</>
 				)}
 			</Menu>
