@@ -18,4 +18,7 @@ export const ROUTES = {
 	DailyOcupancyReport: '/admin/report/report-daily-occupancy',
 	ReservationStatusReport: '/admin/report/report-reservation-status',
 	ClientHistoryReport: '/admin/report/report-client-history',
+	RoomsListPage: '/hotel/:hotelId/rooms',
+	ReservationsPage: '/user/:userId/reservations',
+	ReservationTimesPage: '/rooms/:roomId/reservation-times',
 };
