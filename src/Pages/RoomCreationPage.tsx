@@ -31,16 +31,6 @@ export default function RoomCreationPage() {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    console.log({
-      hotel,
-      roomNumber,
-      price,
-      roomType,
-      floor,
-      size,
-      bedType,
-      description,
-    });
     alert('🏨 Kambarys sėkmingai sukurtas (placeholder)');
   };
 

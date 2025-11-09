@@ -30,21 +30,6 @@ export default function HotelCreationPage() {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-
-    console.log({
-      name,
-      address,
-      city,
-      country,
-      postalCode,
-      phone,
-      email,
-      starRating,
-      description,
-      totalRooms,
-      pictures,
-    });
-
     alert('🏨 Viešbutis sėkmingai sukurtas (placeholder)');
   };
 

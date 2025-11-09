@@ -21,12 +21,6 @@ export default function NewEventPage() {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    console.log({
-      hotel,
-      startDate,
-      endDate,
-      description,
-    });
     alert('🎉 Renginys sukurtas (placeholder)');
   };
 

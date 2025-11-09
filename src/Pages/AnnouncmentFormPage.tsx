@@ -27,12 +27,6 @@ export default function AnnouncementFormPage() {
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
 
-    console.log({
-      announcementType,
-      recipients: selectedUsers,
-      message,
-    });
-
     alert('Pranešimas sėkmingai sukurtas (placeholderis)');
   };
 
