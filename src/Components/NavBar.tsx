@@ -1,4 +1,4 @@
-import { AppBar, Container, Toolbar, Typography } from '@mui/material';
+import { AppBar, Container, Toolbar, Typography} from '@mui/material';
 import AvatarButton from './AvatarButton';
 import { useNavigate } from 'react-router-dom';
 
