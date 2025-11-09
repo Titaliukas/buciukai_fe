@@ -5,4 +5,11 @@ export const ROUTES = {
 	SignUpPage: '/signup',
 	ResetPasswordPage: '/resetpass',
 	NewPasswordPage: '/resetpass/newpass',
+	AdminPage: '/admin',
+	ClientManagement: '/admin/client',
+	AnnouncementForm: '/admin/announcment',
+	EventForm: '/admin/event',
+	SystemSetting: '/admin/setting',
+	RoomCreation: '/admin/roomcreate',
+	HotelCreation: '/admin/hotelcreate',
 };
