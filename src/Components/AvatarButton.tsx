@@ -62,7 +62,7 @@ export default function AvatarButton() {
 				{isLoggedin ? (
 					<>
 						<MenuItem onClick={() => navigate(ROUTES.ProfilePage)}>Profilio nustatymai</MenuItem>
-						<MenuItem onClick={handleClose}>Mano rezervacijos</MenuItem>
+						<MenuItem onClick={() => navigate(ROUTES.ReservationsPage)}>Mano rezervacijos</MenuItem>
 						<MenuItem onClick={handleClose}>Admin puslapis</MenuItem>
 						<MenuItem onClick={handleOpenModal}>Atsijungti</MenuItem>
 						<ConfirmModal

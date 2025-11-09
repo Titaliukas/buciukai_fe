@@ -3,7 +3,26 @@ import SearchBar from '../Components/SearchBar';
 import HotelCard from '../Components/HotelCard';
 import NavBar from '../Components/NavBar';
 
-const hotelList = ['Viešbutis 1', 'Viešbutis 2', 'Viešbutis 3'];
+const hotelList = [
+	{
+		id: '1',
+		name: 'Viešbutis 1',
+		location: 'Kaunas, Lietuva',
+		lowestPrice: 70,
+	},
+	{
+		id: '2',
+		name: 'Viešbutis 2',
+		location: 'Vilnius, Lietuva',
+		lowestPrice: 80,
+	},
+	{
+		id: '3',
+		name: 'Viešbutis 3',
+		location: 'Klaipėda, Lietuva',
+		lowestPrice: 90,
+	},
+];
 
 export default function HomePage() {
 	return (
@@ -38,7 +57,7 @@ export default function HomePage() {
 					</Typography>
 
 					{hotelList.map((hotel) => (
-						<HotelCard hotel={hotel} />
+						<HotelCard key={hotel.id} hotel={hotel} />
 					))}
 				</Container>
 			</Box>

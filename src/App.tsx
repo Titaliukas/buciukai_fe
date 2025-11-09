@@ -7,6 +7,9 @@ import SignInPage from './Pages/SignInPage';
 import SignUpPage from './Pages/SignUpPage';
 import ResetPasswordPage from './Pages/ResetPasswordPage';
 import NewPasswordPage from './Pages/NewPasswordPage';
+import RoomsListPage from './Pages/RoomsListPage';
+import ReservationsPage from './Pages/ReservationsPage';
+import ReservationTimesPage from './Pages/ReservationTimesPage';
 
 function App() {
 	return (
@@ -18,6 +21,9 @@ function App() {
 				<Route path={ROUTES.SignUpPage} element={<SignUpPage />} />
 				<Route path={ROUTES.ResetPasswordPage} element={<ResetPasswordPage />} />
 				<Route path={ROUTES.NewPasswordPage} element={<NewPasswordPage />} />
+				<Route path={ROUTES.RoomsListPage} element={<RoomsListPage />} />
+				<Route path={ROUTES.ReservationsPage} element={<ReservationsPage />} />
+				<Route path={ROUTES.ReservationTimesPage} element={<ReservationTimesPage />} />
 			</Routes>
 		</BrowserRouter>
 	);
