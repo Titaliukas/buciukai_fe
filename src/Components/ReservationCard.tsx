@@ -8,13 +8,12 @@ import {
   Chip,
   Divider,
   Stack,
-  IconButton,
+  Button,
 } from "@mui/material";
 import HotelIcon from "@mui/icons-material/Hotel";
 import LocationOnIcon from "@mui/icons-material/LocationOn";
 import CalendarTodayIcon from "@mui/icons-material/CalendarToday";
 import Reservation from "../types/Reservation";
-import CloseIcon from "@mui/icons-material/Close";
 import Status from "../enum/Status";
 import InfoComponent from "./InfoComponent";
 
@@ -55,14 +54,7 @@ export default function ReservationCard({
 
   return (
     <Card sx={{ width: '100vh', display: 'flex', flexDirection: { xs: 'column', sm: 'row' }, mb: 2, position: 'relative' }}>
-      <IconButton
-        aria-label={`Cancel reservation ${r.id}`}
-        onClick={onCancel}
-        size="small"
-        sx={{ position: 'absolute', top: 8, right: 8, bgcolor: 'transparent', color: 'text.secondary', '&:hover': { bgcolor: 'rgba(0,0,0,0.06)' } }}
-      >
-        <CloseIcon fontSize="small" />
-      </IconButton>
+      
       <CardMedia
         component="img"
         sx={{ width: { xs: "100%", sm: 260 }, height: 180, objectFit: "cover" }}
@@ -88,7 +80,7 @@ export default function ReservationCard({
               <Chip
              label={r.status}
              color={r.status === Status.Cancelled ? 'error' : 'success'}
-             sx={{ mt: 2, transform: 'translateY(15px)' }}
+             sx={{ mt: 2 }}
               />
           </Stack>
 
@@ -100,7 +92,16 @@ export default function ReservationCard({
             <InfoComponent icon={<LocationOnIcon fontSize="small" />} title="Adresas" text={r.address} />
           </Stack>
 
-          <Box sx={{ mt: 1.5, display: 'flex', justifyContent: 'flex-end', alignItems: 'center' }}>
+          <Box sx={{ mt: 1.5, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+            <Button
+              variant="contained"
+              color="error"
+              onClick={onCancel}
+              aria-label={`Atšaukti rezervaciją ${r.id}`}
+            >
+              Atšaukti
+            </Button>
+
             <Box sx={{ textAlign: 'right' }}>
               <Typography variant='caption' color='text.secondary'>
                 Suma
