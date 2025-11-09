@@ -59,6 +59,7 @@ export default function SignInPage() {
 							<TextField
 								variant='outlined'
 								fullWidth
+								placeholder='E. paštas'
 								sx={{
 									bgcolor: '#eaeaea',
 									borderRadius: 1,
@@ -74,6 +75,7 @@ export default function SignInPage() {
 							<TextField
 								variant='outlined'
 								fullWidth
+								placeholder='**********'
 								type='password'
 								sx={{
 									bgcolor: '#eaeaea',

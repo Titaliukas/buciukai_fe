@@ -18,6 +18,7 @@ export default function AvatarButton() {
 	};
 	const handleLogOut = () => {
 		setAnchorEl(null);
+		navigate('/');
 		setTimeout(() => {
 			setIsLoggedin(false);
 		}, 200);
