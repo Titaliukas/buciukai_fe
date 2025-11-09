@@ -20,6 +20,10 @@ import ClientHistoryReportPage from './Pages/ClientHistoryReportPage';
 import DailyOcupancyReportPage from './Pages/DailyOcupancyReportPage';
 import OccupancyIncomeReportPage from './Pages/OccupancyIncomeReportPage';
 import ReservationStatusReportPage from './Pages/ReservationStatusReportPage';
+import RoomsListPage from './Pages/RoomsListPage';
+import ReservationsPage from './Pages/ReservationsPage';
+import ReservationTimesPage from './Pages/ReservationTimesPage';
+
 function App() {
 	return (
 		<BrowserRouter>
@@ -43,6 +47,9 @@ function App() {
 				<Route path={ROUTES.DailyOcupancyReport} element={<DailyOcupancyReportPage/>} />
 				<Route path={ROUTES.OccupancyIncomeReport} element={<OccupancyIncomeReportPage/>} />
 				<Route path={ROUTES.ReservationStatusReport} element={<ReservationStatusReportPage/>} />
+				<Route path={ROUTES.RoomsListPage} element={<RoomsListPage />} />
+				<Route path={ROUTES.ReservationsPage} element={<ReservationsPage />} />
+				<Route path={ROUTES.ReservationTimesPage} element={<ReservationTimesPage />} />
 			</Routes>
 		</BrowserRouter>
 	);
