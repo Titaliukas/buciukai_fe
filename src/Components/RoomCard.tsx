@@ -1,14 +1,17 @@
 import { Box, Button, Paper, Typography, IconButton } from '@mui/material';
+import { useState } from 'react';
 import EditIcon from '@mui/icons-material/Edit';
 import Room from '../types/Room';
 import { useNavigate } from 'react-router-dom';
+import AvailableTimeSlotsDialog from './AvailableTimeSlotsDialog';
 
 type Props = {
 	room: Room;
 };
 
 export default function RoomCard({ room }: Props) {
-    const navigate = useNavigate();
+	const navigate = useNavigate();
+	const [timesOpen, setTimesOpen] = useState(false);
 		return (
 			<Paper elevation={3} sx={{ borderRadius: 1, mb: 2, overflow: 'hidden' }}>
 				{/* Image container with relative positioning so we can overlay buttons */}
@@ -80,10 +83,15 @@ export default function RoomCard({ room }: Props) {
 						mt: 2,
 						'&:hover': { bgcolor: '#2e2abf' },
 					}}
-					onClick={() => {}}
+				onClick={() => setTimesOpen(true)}
 				>
 					Rezervuoti
 				</Button>
+        <AvailableTimeSlotsDialog
+          open={timesOpen}
+          onClose={() => setTimesOpen(false)}
+          room={room}
+        />
 			</Box>
 		</Paper>
 	);
