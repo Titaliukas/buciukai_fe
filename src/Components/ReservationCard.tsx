@@ -54,7 +54,7 @@ export default function ReservationCard({
     function onCancel() {}
 
   return (
-    <Card sx={{ maxWidth: '100vh', display: 'flex', flexDirection: { xs: 'column', sm: 'row' }, mb: 2, position: 'relative' }}>
+    <Card sx={{ width: '100vh', display: 'flex', flexDirection: { xs: 'column', sm: 'row' }, mb: 2, position: 'relative' }}>
       <IconButton
         aria-label={`Cancel reservation ${r.id}`}
         onClick={onCancel}
