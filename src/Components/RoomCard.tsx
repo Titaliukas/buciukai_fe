@@ -1,12 +1,14 @@
 import { Box, Button, Paper, Typography, IconButton } from '@mui/material';
 import EditIcon from '@mui/icons-material/Edit';
 import Room from '../types/Room';
+import { useNavigate } from 'react-router-dom';
 
 type Props = {
 	room: Room;
 };
 
 export default function RoomCard({ room }: Props) {
+    const navigate = useNavigate();
 		return (
 			<Paper elevation={3} sx={{ borderRadius: 1, mb: 2, overflow: 'hidden' }}>
 				{/* Image container with relative positioning so we can overlay buttons */}
@@ -24,8 +26,6 @@ export default function RoomCard({ room }: Props) {
 							display: 'block',
 						}}
 					/>
-
-					{/* Overlay: top-right corner buttons */}
 					<Box
 						sx={{
 							position: 'absolute',
@@ -39,7 +39,7 @@ export default function RoomCard({ room }: Props) {
 						<IconButton
 							size='small'
 							aria-label='Įterpti laikus'
-							onClick={() => {}}
+							onClick={() => navigate(`/rooms/${room.id}/reservation-times`)}
 							sx={{
 								color: 'black',
 								bgcolor: 'transparent',
