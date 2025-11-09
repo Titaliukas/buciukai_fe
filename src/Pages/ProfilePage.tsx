@@ -1,9 +1,29 @@
 import { Box, Button, Container, TextField, Typography } from '@mui/material';
 import NavBar from '../Components/NavBar';
-import { useState } from 'react';
+import { ChangeEvent, useState } from 'react';
+
+interface User {
+	name: string;
+	surname: string;
+	birthdate: string;
+	email: string;
+	password: string;
+}
 
 export default function ProfilePage() {
 	const [editable, setEditable] = useState<boolean>(false);
+	const [user, setUser] = useState<User>({
+		name: 'Gintaras',
+		surname: 'Bučys',
+		birthdate: '2004/11/10',
+		email: 'Butas@gmail.com',
+		password: 'password',
+	});
+
+	const handleChange = (e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+		const { name, value } = e.target;
+		setUser((prev) => ({ ...prev, [name]: value }));
+	};
 
 	return (
 		<>
@@ -52,7 +72,9 @@ export default function ProfilePage() {
 							<TextField
 								variant='outlined'
 								fullWidth
-								value='Gintaras'
+								name='name'
+								value={user.name}
+								onChange={handleChange}
 								disabled={!editable}
 								sx={{
 									bgcolor: '#eaeaea',
@@ -69,7 +91,9 @@ export default function ProfilePage() {
 							<TextField
 								variant='outlined'
 								fullWidth
-								value='Bučys'
+								name='surname'
+								value={user.surname}
+								onChange={handleChange}
 								disabled={!editable}
 								sx={{
 									bgcolor: '#eaeaea',
@@ -86,7 +110,9 @@ export default function ProfilePage() {
 							<TextField
 								variant='outlined'
 								fullWidth
-								value='2004/11/10'
+								name='birthdate'
+								value={user.birthdate}
+								onChange={handleChange}
 								disabled={!editable}
 								sx={{
 									bgcolor: '#eaeaea',
@@ -103,7 +129,9 @@ export default function ProfilePage() {
 							<TextField
 								variant='outlined'
 								fullWidth
-								value='Butas@gmail.com'
+								name='email'
+								value={user.email}
+								onChange={handleChange}
 								disabled={!editable}
 								sx={{
 									bgcolor: '#eaeaea',
@@ -120,7 +148,9 @@ export default function ProfilePage() {
 							<TextField
 								variant='outlined'
 								fullWidth
-								value='**********'
+								name='password'
+								value={user.password}
+								onChange={handleChange}
 								disabled={!editable}
 								type='password'
 								sx={{
