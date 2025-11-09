@@ -1,7 +1,6 @@
-import { AppBar, Container, Toolbar, Typography, Button, Box } from '@mui/material';
+import { AppBar, Container, Toolbar, Typography} from '@mui/material';
 import AvatarButton from './AvatarButton';
 import { useNavigate } from 'react-router-dom';
-import { ROUTES } from '../constants';
 
 export default function NavBar() {
 	const navigate = useNavigate();
@@ -18,14 +17,6 @@ export default function NavBar() {
 					>
 						Bučiukai
 					</Typography>
-					<Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-						<Button color='inherit' variant='text' onClick={() => navigate(ROUTES.HomePage)}>
-							Pradžia
-						</Button>
-						<Button color='inherit' variant='text' onClick={() => navigate(ROUTES.ReservationsPage)}>	
-							Rezervacijos
-						</Button>
-					</Box>
 					<AvatarButton />
 				</Toolbar>
 			</Container>
