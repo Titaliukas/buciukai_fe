@@ -9,25 +9,26 @@ import {
   MenuItem,
 } from '@mui/material';
 import NavBar from '../Components/NavBar';
+import { Event } from '../types'; 
 
 export default function NewEventPage() {
-  const [hotel, setHotel] = useState('');
-  const [startDate, setStartDate] = useState('');
-  const [endDate, setEndDate] = useState('');
-  const [description, setDescription] = useState('');
+  const [event, setEvent] = useState<Event>({
+    hotel: '',
+    startDate: '',
+    endDate: '',
+    description: '',
+  });
 
-  // Placeholder hotel list
   const hotels = ['Viešbutis 1', 'Viešbutis 2', 'Viešbutis 3'];
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    console.log({
-      hotel,
-      startDate,
-      endDate,
-      description,
-    });
-    alert('🎉 Renginys sukurtas (placeholder)');
+    console.log(event);
+    alert('🎉 Renginys sukurtas (placeholderis)');
+  };
+
+  const handleChange = (field: keyof Event, value: string) => {
+    setEvent((prev) => ({ ...prev, [field]: value }));
   };
 
   return (
@@ -61,12 +62,11 @@ export default function NewEventPage() {
               gap: 3,
             }}
           >
-            {/* Hotel dropdown */}
             <TextField
               select
               label="Pasirinkite viešbutį"
-              value={hotel}
-              onChange={(e) => setHotel(e.target.value)}
+              value={event.hotel}
+              onChange={(e) => handleChange('hotel', e.target.value)}
               fullWidth
               required
               sx={{ bgcolor: '#f9f9f9', borderRadius: 1 }}
@@ -78,43 +78,39 @@ export default function NewEventPage() {
               ))}
             </TextField>
 
-            {/* Start date & time */}
             <TextField
               label="Pradžios data ir laikas"
               type="datetime-local"
-              value={startDate}
-              onChange={(e) => setStartDate(e.target.value)}
+              value={event.startDate}
+              onChange={(e) => handleChange('startDate', e.target.value)}
               fullWidth
               InputLabelProps={{ shrink: true }}
               required
               sx={{ bgcolor: '#f9f9f9', borderRadius: 1 }}
             />
 
-            {/* End date & time */}
             <TextField
               label="Pabaigos data ir laikas"
               type="datetime-local"
-              value={endDate}
-              onChange={(e) => setEndDate(e.target.value)}
+              value={event.endDate}
+              onChange={(e) => handleChange('endDate', e.target.value)}
               fullWidth
               InputLabelProps={{ shrink: true }}
               required
               sx={{ bgcolor: '#f9f9f9', borderRadius: 1 }}
             />
 
-            {/* Description */}
             <TextField
               label="Renginio aprašymas"
               multiline
               rows={4}
-              value={description}
-              onChange={(e) => setDescription(e.target.value)}
+              value={event.description}
+              onChange={(e) => handleChange('description', e.target.value)}
               fullWidth
               required
               sx={{ bgcolor: '#f9f9f9', borderRadius: 1 }}
             />
 
-            {/* Submit button */}
             <Button
               type="submit"
               variant="contained"

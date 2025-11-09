@@ -9,16 +9,20 @@ import {
   MenuItem,
 } from '@mui/material';
 import NavBar from '../Components/NavBar';
+import { RoomDetails } from '../types';
 
 export default function RoomCreationPage() {
-  const [hotel, setHotel] = useState('');
-  const [roomNumber, setRoomNumber] = useState('');
-  const [price, setPrice] = useState('');
-  const [roomType, setRoomType] = useState('');
-  const [floor, setFloor] = useState('');
-  const [size, setSize] = useState('');
-  const [bedType, setBedType] = useState('');
-  const [description, setDescription] = useState('');
+  const [room, setRoom] = useState<RoomDetails>({
+    hotel: '',
+    roomNumber: '',
+    type: '',
+    price: 0,
+    floor: 0,
+    size: 0,
+    bedType: '',
+    description: '',
+    pictures: [],
+  });
 
   const bedOptions = [
     'Karališka lova',
@@ -29,35 +33,37 @@ export default function RoomCreationPage() {
 
   const hotelOptions = ['Viešbutis 1', 'Viešbutis 2', 'Viešbutis 3'];
 
+  const handleChange = (field: keyof RoomDetails, value: string | number) => {
+    setRoom((prev) => ({
+      ...prev,
+      [field]: value,
+    }));
+  };
+
+  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = e.target.files;
+    if (files) {
+      setRoom((prev) => ({
+        ...prev,
+        pictures: Array.from(files),
+      }));
+    }
+  };
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    console.log({
-      hotel,
-      roomNumber,
-      price,
-      roomType,
-      floor,
-      size,
-      bedType,
-      description,
-    });
+    console.log(room);
     alert('🏨 Kambarys sėkmingai sukurtas (placeholder)');
   };
 
   return (
     <>
       <NavBar />
-
       <Box sx={{ bgcolor: '#f2f2f2', minHeight: '100vh', py: 6 }}>
         <Container maxWidth="sm">
           <Typography
             variant="h4"
-            sx={{
-              textAlign: 'center',
-              fontWeight: 'bold',
-              color: '#333',
-              mb: 5,
-            }}
+            sx={{ textAlign: 'center', fontWeight: 'bold', color: '#333', mb: 5 }}
           >
             Naujo Kambario Kūrimas
           </Typography>
@@ -75,12 +81,11 @@ export default function RoomCreationPage() {
               gap: 3,
             }}
           >
-            {/* Viešbučio pasirinkimas */}
             <TextField
               select
               label="Pasirinkite viešbutį"
-              value={hotel}
-              onChange={(e) => setHotel(e.target.value)}
+              value={room.hotel}
+              onChange={(e) => handleChange('hotel', e.target.value)}
               fullWidth
               required
               sx={{ bgcolor: '#f9f9f9', borderRadius: 1 }}
@@ -94,8 +99,8 @@ export default function RoomCreationPage() {
 
             <TextField
               label="Kambario numeris"
-              value={roomNumber}
-              onChange={(e) => setRoomNumber(e.target.value)}
+              value={room.roomNumber}
+              onChange={(e) => handleChange('roomNumber', e.target.value)}
               fullWidth
               required
               sx={{ bgcolor: '#f9f9f9', borderRadius: 1 }}
@@ -104,8 +109,8 @@ export default function RoomCreationPage() {
             <TextField
               label="Kaina (€)"
               type="number"
-              value={price}
-              onChange={(e) => setPrice(e.target.value)}
+              value={room.price}
+              onChange={(e) => handleChange('price', Number(e.target.value))}
               fullWidth
               required
               sx={{ bgcolor: '#f9f9f9', borderRadius: 1 }}
@@ -113,8 +118,8 @@ export default function RoomCreationPage() {
 
             <TextField
               label="Kambario tipas"
-              value={roomType}
-              onChange={(e) => setRoomType(e.target.value)}
+              value={room.type}
+              onChange={(e) => handleChange('type', e.target.value)}
               fullWidth
               required
               sx={{ bgcolor: '#f9f9f9', borderRadius: 1 }}
@@ -123,8 +128,8 @@ export default function RoomCreationPage() {
             <TextField
               label="Aukšto numeris"
               type="number"
-              value={floor}
-              onChange={(e) => setFloor(e.target.value)}
+              value={room.floor}
+              onChange={(e) => handleChange('floor', Number(e.target.value))}
               fullWidth
               required
               sx={{ bgcolor: '#f9f9f9', borderRadius: 1 }}
@@ -133,8 +138,8 @@ export default function RoomCreationPage() {
             <TextField
               label="Kambario dydis (m²)"
               type="number"
-              value={size}
-              onChange={(e) => setSize(e.target.value)}
+              value={room.size}
+              onChange={(e) => handleChange('size', Number(e.target.value))}
               fullWidth
               required
               sx={{ bgcolor: '#f9f9f9', borderRadius: 1 }}
@@ -143,8 +148,8 @@ export default function RoomCreationPage() {
             <TextField
               select
               label="Lovos tipas"
-              value={bedType}
-              onChange={(e) => setBedType(e.target.value)}
+              value={room.bedType}
+              onChange={(e) => handleChange('bedType', e.target.value)}
               fullWidth
               required
               sx={{ bgcolor: '#f9f9f9', borderRadius: 1 }}
@@ -156,16 +161,70 @@ export default function RoomCreationPage() {
               ))}
             </TextField>
 
+
             <TextField
               label="Aprašymas"
               multiline
               rows={4}
-              value={description}
-              onChange={(e) => setDescription(e.target.value)}
+              value={room.description}
+              onChange={(e) => handleChange('description', e.target.value)}
               fullWidth
               required
               sx={{ bgcolor: '#f9f9f9', borderRadius: 1 }}
             />
+
+
+            <Box>
+              <Typography
+                variant="subtitle1"
+                sx={{ mb: 1, fontWeight: 'medium', color: '#555' }}
+              >
+                Kambario nuotraukos
+              </Typography>
+              <Button
+                variant="outlined"
+                component="label"
+                sx={{
+                  borderRadius: 2,
+                  textTransform: 'none',
+                  fontWeight: 'bold',
+                }}
+              >
+                Pasirinkti nuotraukas
+                <input
+                  type="file"
+                  multiple
+                  hidden
+                  accept="image/*"
+                  onChange={handleImageChange}
+                />
+              </Button>
+
+              {room.pictures.length > 0 && (
+                <Box sx={{ mt: 2, display: 'flex', flexWrap: 'wrap', gap: 2 }}>
+                  {room.pictures.map((file, index) => (
+                    <Box
+                      key={index}
+                      sx={{
+                        width: 100,
+                        height: 100,
+                        borderRadius: 2,
+                        overflow: 'hidden',
+                        boxShadow: '0 1px 5px rgba(0,0,0,0.2)',
+                      }}
+                    >
+                      <img
+                        src={URL.createObjectURL(file)}
+                        alt={`Nuotrauka ${index + 1}`}
+                        width="100%"
+                        height="100%"
+                        style={{ objectFit: 'cover' }}
+                      />
+                    </Box>
+                  ))}
+                </Box>
+              )}
+            </Box>
 
             <Button
               type="submit"
