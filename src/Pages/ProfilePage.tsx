@@ -1,14 +1,7 @@
 import { Box, Button, Container, TextField, Typography } from '@mui/material';
 import NavBar from '../Components/NavBar';
 import { ChangeEvent, useState } from 'react';
-
-interface User {
-	name: string;
-	surname: string;
-	birthdate: string;
-	email: string;
-	password: string;
-}
+import { User } from '../types';
 
 export default function ProfilePage() {
 	const [editable, setEditable] = useState<boolean>(false);
