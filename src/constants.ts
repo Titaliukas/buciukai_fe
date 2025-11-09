@@ -12,4 +12,10 @@ export const ROUTES = {
 	SystemSetting: '/admin/setting',
 	RoomCreation: '/admin/roomcreate',
 	HotelCreation: '/admin/hotelcreate',
+	ReportSelection: '/admin/report',
+	OldReports: '/admin/report/old-reports',
+	OccupancyIncomeReport: '/admin/report/report-occupancy-income',
+	DailyOcupancyReport: '/admin/report/report-daily-occupancy',
+	ReservationStatusReport: '/admin/report/report-reservation-status',
+	ClientHistoryReport: '/admin/report/report-client-history',
 };

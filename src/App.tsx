@@ -14,6 +14,12 @@ import EventFormPage from './Pages/EventFormPage';
 import RoomCreationPage from './Pages/RoomCreationPage';
 import AnnouncementFormPage from './Pages/AnnouncmentFormPage';
 import HotelCreationPage from './Pages/HotelCreationPage';
+import ReportSelectionPage from './Pages/ReportSelectionPage';
+import OldReportsPage from './Pages/OldReportsPage';
+import ClientHistoryReportPage from './Pages/ClientHistoryReportPage';
+import DailyOcupancyReportPage from './Pages/DailyOcupancyReportPage';
+import OccupancyIncomeReportPage from './Pages/OccupancyIncomeReportPage';
+import ReservationStatusReportPage from './Pages/ReservationStatusReportPage';
 function App() {
 	return (
 		<BrowserRouter>
@@ -31,6 +37,12 @@ function App() {
 				<Route path={ROUTES.RoomCreation} element={<RoomCreationPage />} />
 				<Route path={ROUTES.AnnouncementForm} element={<AnnouncementFormPage/>} />
 				<Route path={ROUTES.HotelCreation} element={<HotelCreationPage/>} />
+				<Route path={ROUTES.ReportSelection} element={<ReportSelectionPage/>} />
+				<Route path={ROUTES.OldReports} element={<OldReportsPage/>} />
+				<Route path={ROUTES.ClientHistoryReport} element={<ClientHistoryReportPage/>} />
+				<Route path={ROUTES.DailyOcupancyReport} element={<DailyOcupancyReportPage/>} />
+				<Route path={ROUTES.OccupancyIncomeReport} element={<OccupancyIncomeReportPage/>} />
+				<Route path={ROUTES.ReservationStatusReport} element={<ReservationStatusReportPage/>} />
 			</Routes>
 		</BrowserRouter>
 	);

@@ -9,7 +9,7 @@ const adminOptions = [
   { label: 'Naujas pranešimas', image: 'https://img.freepik.com/free-vector/illustrationn-megaphone-monochrome-style-isolated-white-background_1284-38767.jpg?semt=ais_hybrid&w=740&q=80', link: ROUTES.AnnouncementForm },
   { label: 'Naujas renginys', image: 'https://www.shutterstock.com/image-vector/night-party-banner-poster-colorful-600nw-2482368757.jpg', link: ROUTES.EventForm },
   { label: 'Naujas viešbutis', image: 'https://cdn.britannica.com/96/115096-050-5AFDAF5D/Bellagio-Hotel-Casino-Las-Vegas.jpg', link: ROUTES.HotelCreation },
-  { label: 'Ataskaitos', image: 'https://thumbs.dreamstime.com/b/yellow-file-folder-paper-document-cartoon-illustration-400000806.jpg', link: '/admin/reports' },
+  { label: 'Ataskaitos', image: 'https://thumbs.dreamstime.com/b/yellow-file-folder-paper-document-cartoon-illustration-400000806.jpg', link: ROUTES.ReportSelection },
 ];
 
 export default function AdminPage() {
