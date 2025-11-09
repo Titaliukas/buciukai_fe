@@ -8,28 +8,43 @@ import {
   Button,
 } from '@mui/material';
 import NavBar from '../Components/NavBar';
+import { HotelDetails } from '../types';
 
 export default function HotelCreationPage() {
-  const [name, setName] = useState('');
-  const [address, setAddress] = useState('');
-  const [city, setCity] = useState('');
-  const [country, setCountry] = useState('');
-  const [postalCode, setPostalCode] = useState('');
-  const [phone, setPhone] = useState('');
-  const [email, setEmail] = useState('');
-  const [starRating, setStarRating] = useState('');
-  const [description, setDescription] = useState('');
-  const [totalRooms, setTotalRooms] = useState('');
-  const [pictures, setPictures] = useState<File[]>([]);
+  const [hotel, setHotel] = useState<HotelDetails>({
+    name: '',
+    address: '',
+    city: '',
+    country: '',
+    postalCode: '',
+    phone: '',
+    email: '',
+    starRating: 0,
+    description: '',
+    totalRooms: 0,
+    pictures: [],
+  });
 
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (e.target.files) {
-      setPictures(Array.from(e.target.files));
-    }
+  const files = e.target.files;
+  if (files) {
+    setHotel((prev) => ({
+      ...prev,
+      pictures: Array.from(files),
+    }));
+  }
+};
+
+  const handleChange = (field: keyof HotelDetails, value: string | number) => {
+    setHotel((prev) => ({
+      ...prev,
+      [field]: value,
+    }));
   };
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+    console.log(hotel);
     alert('🏨 Viešbutis sėkmingai sukurtas (placeholder)');
   };
 
@@ -66,8 +81,8 @@ export default function HotelCreationPage() {
           >
             <TextField
               label="Viešbučio pavadinimas"
-              value={name}
-              onChange={(e) => setName(e.target.value)}
+              value={hotel.name}
+              onChange={(e) => handleChange('name', e.target.value)}
               fullWidth
               required
               sx={{ bgcolor: '#f9f9f9', borderRadius: 1 }}
@@ -75,8 +90,8 @@ export default function HotelCreationPage() {
 
             <TextField
               label="Adresas"
-              value={address}
-              onChange={(e) => setAddress(e.target.value)}
+              value={hotel.address}
+              onChange={(e) => handleChange('address', e.target.value)}
               fullWidth
               required
               sx={{ bgcolor: '#f9f9f9', borderRadius: 1 }}
@@ -84,8 +99,8 @@ export default function HotelCreationPage() {
 
             <TextField
               label="Miestas"
-              value={city}
-              onChange={(e) => setCity(e.target.value)}
+              value={hotel.city}
+              onChange={(e) => handleChange('city', e.target.value)}
               fullWidth
               required
               sx={{ bgcolor: '#f9f9f9', borderRadius: 1 }}
@@ -93,8 +108,8 @@ export default function HotelCreationPage() {
 
             <TextField
               label="Šalis"
-              value={country}
-              onChange={(e) => setCountry(e.target.value)}
+              value={hotel.country}
+              onChange={(e) => handleChange('country', e.target.value)}
               fullWidth
               required
               sx={{ bgcolor: '#f9f9f9', borderRadius: 1 }}
@@ -102,8 +117,8 @@ export default function HotelCreationPage() {
 
             <TextField
               label="Pašto kodas"
-              value={postalCode}
-              onChange={(e) => setPostalCode(e.target.value)}
+              value={hotel.postalCode}
+              onChange={(e) => handleChange('postalCode', e.target.value)}
               fullWidth
               required
               sx={{ bgcolor: '#f9f9f9', borderRadius: 1 }}
@@ -111,8 +126,8 @@ export default function HotelCreationPage() {
 
             <TextField
               label="Telefono numeris"
-              value={phone}
-              onChange={(e) => setPhone(e.target.value)}
+              value={hotel.phone}
+              onChange={(e) => handleChange('phone', e.target.value)}
               fullWidth
               required
               sx={{ bgcolor: '#f9f9f9', borderRadius: 1 }}
@@ -121,8 +136,8 @@ export default function HotelCreationPage() {
             <TextField
               label="El. paštas"
               type="email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
+              value={hotel.email}
+              onChange={(e) => handleChange('email', e.target.value)}
               fullWidth
               required
               sx={{ bgcolor: '#f9f9f9', borderRadius: 1 }}
@@ -132,8 +147,8 @@ export default function HotelCreationPage() {
               label="Žvaigždučių įvertinimas"
               type="number"
               inputProps={{ min: 1, max: 5 }}
-              value={starRating}
-              onChange={(e) => setStarRating(e.target.value)}
+              value={hotel.starRating}
+              onChange={(e) => handleChange('starRating', Number(e.target.value))}
               fullWidth
               required
               sx={{ bgcolor: '#f9f9f9', borderRadius: 1 }}
@@ -142,8 +157,8 @@ export default function HotelCreationPage() {
             <TextField
               label="Bendras kambarių skaičius"
               type="number"
-              value={totalRooms}
-              onChange={(e) => setTotalRooms(e.target.value)}
+              value={hotel.totalRooms}
+              onChange={(e) => handleChange('totalRooms', Number(e.target.value))}
               fullWidth
               required
               sx={{ bgcolor: '#f9f9f9', borderRadius: 1 }}
@@ -153,8 +168,8 @@ export default function HotelCreationPage() {
               label="Aprašymas"
               multiline
               rows={4}
-              value={description}
-              onChange={(e) => setDescription(e.target.value)}
+              value={hotel.description}
+              onChange={(e) => handleChange('description', e.target.value)}
               fullWidth
               required
               sx={{ bgcolor: '#f9f9f9', borderRadius: 1 }}
@@ -187,9 +202,9 @@ export default function HotelCreationPage() {
                 />
               </Button>
 
-              {pictures.length > 0 && (
+              {hotel.pictures.length > 0 && (
                 <Box sx={{ mt: 2, display: 'flex', flexWrap: 'wrap', gap: 2 }}>
-                  {pictures.map((file, index) => (
+                  {hotel.pictures.map((file, index) => (
                     <Box
                       key={index}
                       sx={{

@@ -15,24 +15,40 @@ import {
   ListItemText,
 } from '@mui/material';
 import NavBar from '../Components/NavBar';
+import { Announcement } from '../types'; 
 
 export default function AnnouncementFormPage() {
-  const [announcementType, setAnnouncementType] = useState('');
-  const [selectedUsers, setSelectedUsers] = useState<string[]>([]);
-  const [message, setMessage] = useState('');
+  const [announcement, setAnnouncement] = useState<Announcement>({
+    announcementType: '' as 'news' | 'inbox',
+    recipients: [],
+    message: '',
+  });
 
-  // Placeholder user data
+  // Placeholder user list
   const users = ['vartotojas1', 'vartotojas2', 'vartotojas3', 'vartotojas4'];
 
+  // Handlers
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
 
+    console.log(announcement);
     alert('Pranešimas sėkmingai sukurtas (placeholderis)');
   };
 
+  const handleTypeChange = (value: string) => {
+    setAnnouncement((prev) => ({ ...prev, announcementType: value as 'news' | 'inbox' }));
+  };
+
   const handleUserChange = (event: any) => {
-    const { target: { value } } = event;
-    setSelectedUsers(typeof value === 'string' ? value.split(',') : value);
+    const { value } = event.target;
+    setAnnouncement((prev) => ({
+      ...prev,
+      recipients: typeof value === 'string' ? value.split(',') : value,
+    }));
+  };
+
+  const handleMessageChange = (value: string) => {
+    setAnnouncement((prev) => ({ ...prev, message: value }));
   };
 
   return (
@@ -70,8 +86,8 @@ export default function AnnouncementFormPage() {
             <TextField
               select
               label="Pranešimo tipas"
-              value={announcementType}
-              onChange={(e) => setAnnouncementType(e.target.value)}
+              value={announcement.announcementType}
+              onChange={(e) => handleTypeChange(e.target.value)}
               fullWidth
               required
               sx={{ bgcolor: '#f9f9f9', borderRadius: 1 }}
@@ -81,12 +97,12 @@ export default function AnnouncementFormPage() {
             </TextField>
 
             {/* Conditional User Selection */}
-            {announcementType === 'inbox' && (
+            {announcement.announcementType === 'inbox' && (
               <FormControl fullWidth>
                 <InputLabel>Pasirinkite vartotojus</InputLabel>
                 <Select
                   multiple
-                  value={selectedUsers}
+                  value={announcement.recipients}
                   onChange={handleUserChange}
                   input={<OutlinedInput label="Pasirinkite vartotojus" />}
                   renderValue={(selected) => selected.join(', ')}
@@ -94,7 +110,7 @@ export default function AnnouncementFormPage() {
                 >
                   {users.map((user) => (
                     <MenuItem key={user} value={user}>
-                      <Checkbox checked={selectedUsers.indexOf(user) > -1} />
+                      <Checkbox checked={announcement.recipients.includes(user)} />
                       <ListItemText primary={user} />
                     </MenuItem>
                   ))}
@@ -107,8 +123,8 @@ export default function AnnouncementFormPage() {
               label="Pranešimo tekstas"
               multiline
               rows={5}
-              value={message}
-              onChange={(e) => setMessage(e.target.value)}
+              value={announcement.message}
+              onChange={(e) => handleMessageChange(e.target.value)}
               fullWidth
               required
               sx={{ bgcolor: '#f9f9f9', borderRadius: 1 }}
