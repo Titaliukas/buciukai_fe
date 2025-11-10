@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState } from 'react';
 import {
 	TextField,
 	Button,
@@ -13,18 +13,18 @@ import {
 	FormGroup,
 	FormControlLabel,
 	Checkbox,
-} from "@mui/material";
+} from '@mui/material';
 
 export default function SearchBar() {
 	const [showOptions, setShowOptions] = useState(false);
 
-	const [city, setCity] = useState("");
-	const [guests, setGuests] = useState("");
-	const [priceFrom, setPriceFrom] = useState("");
-	const [priceTo, setPriceTo] = useState("");
-	const [roomType, setRoomType] = useState("");
-	const [bedType, setBedType] = useState("");
-	const [sortBy, setSortBy] = useState("");
+	const [city, setCity] = useState('');
+	const [guests, setGuests] = useState('');
+	const [priceFrom, setPriceFrom] = useState('');
+	const [priceTo, setPriceTo] = useState('');
+	const [roomType, setRoomType] = useState('');
+	const [bedType, setBedType] = useState('');
+	const [sortBy, setSortBy] = useState('');
 	const [amenities, setAmenities] = useState({
 		wifi: false,
 		parking: false,
@@ -43,44 +43,44 @@ export default function SearchBar() {
 			sx={{
 				p: 3,
 				mt: 2,
-				backgroundColor: "white",
+				backgroundColor: 'white',
 				borderRadius: 2,
 			}}
 		>
 			{/* Pagrindinė paieškos eilutė */}
 			<Box
 				sx={{
-					display: "flex",
-					alignItems: "center",
+					display: 'flex',
+					alignItems: 'center',
 					gap: 2,
-					flexWrap: "wrap",
+					flexWrap: 'wrap',
 				}}
 			>
 				<TextField
-					label="Miestas"
-					variant="outlined"
+					label='Miestas'
+					variant='outlined'
 					value={city}
 					onChange={(e) => setCity(e.target.value)}
 					sx={{ flex: 1 }}
 				/>
 
 				<TextField
-					label="Svečiai"
-					variant="outlined"
-					type="number"
+					label='Svečiai'
+					variant='outlined'
+					type='number'
 					value={guests}
 					onChange={(e) => setGuests(e.target.value)}
 					sx={{ width: 140 }}
 				/>
 
 				<Button
-					variant="contained"
-					color="primary"
+					variant='contained'
+					color='primary'
 					sx={{
-						textTransform: "none",
+						textTransform: 'none',
 						px: 4,
-						backgroundColor: "#54923D",
-						"&:hover": { backgroundColor: "#457f32" },
+						backgroundColor: '#54923D',
+						'&:hover': { backgroundColor: '#457f32' },
 					}}
 					onClick={() => {
 						console.log({
@@ -99,9 +99,9 @@ export default function SearchBar() {
 				</Button>
 
 				<Button
-					variant="outlined"
+					variant='outlined'
 					onClick={() => setShowOptions(!showOptions)}
-					sx={{ textTransform: "none", whiteSpace: "nowrap" }}
+					sx={{ textTransform: 'none', whiteSpace: 'nowrap' }}
 				>
 					Daugiau pasirinkimų
 				</Button>
@@ -114,48 +114,48 @@ export default function SearchBar() {
 						mt: 3,
 						p: 2,
 						borderRadius: 2,
-						border: "1px solid #ddd",
-						backgroundColor: "#fafafa",
-						display: "flex",
-						flexDirection: "column",
+						border: '1px solid #ddd',
+						backgroundColor: '#fafafa',
+						display: 'flex',
+						flexDirection: 'column',
 						gap: 3,
 					}}
 				>
-					<Typography variant="h6" sx={{ fontWeight: "bold" }}>
+					<Typography variant='h6' sx={{ fontWeight: 'bold' }}>
 						Papildomi pasirinkimai
 					</Typography>
 
 					{/* Kainų intervalas */}
-					<Box sx={{ display: "flex", gap: 2, flexWrap: "wrap" }}>
+					<Box sx={{ display: 'flex', gap: 2, flexWrap: 'wrap' }}>
 						<TextField
-							label="Kaina nuo (€)"
-							type="number"
+							label='Kaina nuo (€)'
+							type='number'
 							value={priceFrom}
 							onChange={(e) => setPriceFrom(e.target.value)}
 							sx={{ flex: 1, minWidth: 120 }}
 						/>
 						<TextField
-							label="Kaina iki (€)"
-							type="number"
+							label='Kaina iki (€)'
+							type='number'
 							value={priceTo}
 							onChange={(e) => setPriceTo(e.target.value)}
 							sx={{ flex: 1, minWidth: 120 }}
 						/>
 					</Box>
 
-
 					{/* Kambario ir lovos tipai */}
-					<Box sx={{ display: "flex", gap: 2, flexWrap: "wrap" }}>
+					<Box sx={{ display: 'flex', gap: 2, flexWrap: 'wrap' }}>
 						<FormControl sx={{ flex: 1, minWidth: 180 }}>
 							<InputLabel>Kambario tipas</InputLabel>
 							<Select
 								value={roomType}
-								label="Kambario tipas"
+								label='Kambario tipas'
 								onChange={(e) => setRoomType(e.target.value)}
+								MenuProps={{ disableScrollLock: true }}
 							>
-								<MenuItem value="Standartinis">Standartinis</MenuItem>
-								<MenuItem value="Liukso">Liukso</MenuItem>
-								<MenuItem value="Šeimyninis">Šeimyninis</MenuItem>
+								<MenuItem value='Standartinis'>Standartinis</MenuItem>
+								<MenuItem value='Liukso'>Liukso</MenuItem>
+								<MenuItem value='Šeimyninis'>Šeimyninis</MenuItem>
 							</Select>
 						</FormControl>
 
@@ -163,92 +163,68 @@ export default function SearchBar() {
 							<InputLabel>Lovos tipas</InputLabel>
 							<Select
 								value={bedType}
-								label="Lovos tipas"
+								label='Lovos tipas'
 								onChange={(e) => setBedType(e.target.value)}
+								MenuProps={{ disableScrollLock: true }}
 							>
-								<MenuItem value="Viengulė">Viengulė</MenuItem>
-								<MenuItem value="Dvigulė">Dvigulė</MenuItem>
-								<MenuItem value="Karališka">Karališka</MenuItem>
+								<MenuItem value='Viengulė'>Viengulė</MenuItem>
+								<MenuItem value='Dvigulė'>Dvigulė</MenuItem>
+								<MenuItem value='Karališka'>Karališka</MenuItem>
 							</Select>
 						</FormControl>
 					</Box>
 
 					{/* Rikiavimas */}
-					<Box sx={{ display: "flex", gap: 2, flexWrap: "wrap" }}>
+					<Box sx={{ display: 'flex', gap: 2, flexWrap: 'wrap' }}>
 						<FormControl sx={{ flex: 1, minWidth: 180 }}>
 							<InputLabel>Rikiuoti pagal</InputLabel>
 							<Select
 								value={sortBy}
-								label="Rikiuoti pagal"
+								label='Rikiuoti pagal'
 								onChange={(e) => setSortBy(e.target.value)}
+								MenuProps={{ disableScrollLock: true }}
 							>
-								<MenuItem value="name">Abėcėlę</MenuItem>
-								<MenuItem value="price">Kainą</MenuItem>
+								<MenuItem value='name'>Abėcėlę</MenuItem>
+								<MenuItem value='price'>Kainą</MenuItem>
 							</Select>
 						</FormControl>
 					</Box>
 
 					{/* Patogumai */}
 					<Box>
-						<Typography variant="subtitle1" sx={{ mb: 1, textAlign: "center" }}>
+						<Typography variant='subtitle1' sx={{ mb: 1, textAlign: 'center' }}>
 							Patogumai
 						</Typography>
 						<FormGroup
 							row
 							sx={{
-								flexWrap: "wrap",
-								justifyContent: "center", // ← centruoja
-								gap: 1.5,                 // ← tarpai tarp elementų
+								flexWrap: 'wrap',
+								justifyContent: 'center', // ← centruoja
+								gap: 1.5, // ← tarpai tarp elementų
 							}}
 						>
 							<FormControlLabel
-								control={
-									<Checkbox
-										checked={amenities.wifi}
-										onChange={() => handleAmenityChange("wifi")}
-									/>
-								}
-								label="Wi-Fi"
+								control={<Checkbox checked={amenities.wifi} onChange={() => handleAmenityChange('wifi')} />}
+								label='Wi-Fi'
 							/>
 							<FormControlLabel
-								control={
-									<Checkbox
-										checked={amenities.parking}
-										onChange={() => handleAmenityChange("parking")}
-									/>
-								}
-								label="Parkingas"
+								control={<Checkbox checked={amenities.parking} onChange={() => handleAmenityChange('parking')} />}
+								label='Parkingas'
 							/>
 							<FormControlLabel
-								control={
-									<Checkbox
-										checked={amenities.pool}
-										onChange={() => handleAmenityChange("pool")}
-									/>
-								}
-								label="Baseinas"
+								control={<Checkbox checked={amenities.pool} onChange={() => handleAmenityChange('pool')} />}
+								label='Baseinas'
 							/>
 							<FormControlLabel
-								control={
-									<Checkbox
-										checked={amenities.gym}
-										onChange={() => handleAmenityChange("gym")}
-									/>
-								}
-								label="Sporto salė"
+								control={<Checkbox checked={amenities.gym} onChange={() => handleAmenityChange('gym')} />}
+								label='Sporto salė'
 							/>
 							<FormControlLabel
-								control={
-									<Checkbox
-										checked={amenities.restaurant}
-										onChange={() => handleAmenityChange("restaurant")}
-									/>
-								}
-								label="Restoranas"
+								control={<Checkbox checked={amenities.restaurant} onChange={() => handleAmenityChange('restaurant')} />}
+								label='Restoranas'
 							/>
 						</FormGroup>
 					</Box>
-
 				</Box>
 			</Collapse>
 		</Paper>
