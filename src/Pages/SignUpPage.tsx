@@ -165,22 +165,6 @@ export default function SignUpPage() {
 							/>
 						</Box>
 
-						{/* <Box
-							sx={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-start', width: '100%', maxWidth: 400 }}
-						>
-							<Typography sx={{ color: 'black', mb: 0.5 }}>Gimimo metai</Typography>
-							<TextField
-								variant='outlined'
-								fullWidth
-								placeholder='(YYYY/MM/DD)'
-								sx={{
-									bgcolor: '#eaeaea',
-									borderRadius: 1,
-									fontWeight: 'bold',
-								}}
-							/>
-						</Box> */}
-
 						<Box
 							sx={{
 								display: 'flex',
