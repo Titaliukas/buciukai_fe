@@ -4,7 +4,7 @@ import { ROUTES } from '../constants';
 import { useState } from 'react';
 import { createUserWithEmailAndPassword } from 'firebase/auth';
 import { auth } from '../config/FirebaseConfig';
-import axios from 'axios';
+import axiosInstance from '../config/axiosConfig';
 
 export default function SignUpPage() {
 	const navigate = useNavigate();
@@ -26,16 +26,9 @@ export default function SignUpPage() {
 			const user = auth.currentUser;
 			console.log(user);
 
-			// Get ID token
-			const idToken = await user!.getIdToken();
+			const path = `/users/signup`;
 
-			// Call backend to save user profile
-
-			await axios.post(
-				'http://localhost:8080/api/users/signup',
-				{ username, name, surname, email, password, role: 1 },
-				{ headers: { Authorization: `Bearer ${idToken}` } }
-			);
+			await axiosInstance.post(path, { username, name, surname, email, password, role: 1 });
 			navigate(ROUTES.HomePage);
 		} catch (error) {
 			console.log(error);
