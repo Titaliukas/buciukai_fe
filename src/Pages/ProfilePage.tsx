@@ -1,21 +1,69 @@
 import { Box, Button, Container, TextField, Typography } from '@mui/material';
 import NavBar from '../Components/NavBar';
-import { ChangeEvent, useState } from 'react';
-import { User } from '../types';
+import { useContext, useEffect, useState } from 'react';
+import AuthContext from '../context/authContext';
+import { DatePicker } from '@mui/x-date-pickers/DatePicker';
+import dayjs, { Dayjs } from 'dayjs';
+import axiosInstance from '../config/axiosConfig';
+import { updatePassword } from 'firebase/auth';
+import { auth } from '../config/FirebaseConfig';
 
 export default function ProfilePage() {
 	const [editable, setEditable] = useState<boolean>(false);
-	const [user, setUser] = useState<User>({
-		name: 'Gintaras',
-		surname: 'Bučys',
-		birthdate: '2004/11/10',
-		email: 'Butas@gmail.com',
-		password: 'password',
-	});
+	const { userInfo, setUserInfo } = useContext(AuthContext);
+	const [isLoading, setIsLoading] = useState(false);
 
-	const handleChange = (e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
-		const { name, value } = e.target;
-		setUser((prev) => ({ ...prev, [name]: value }));
+	const [username, setUsername] = useState(userInfo?.username || '');
+	const [name, setName] = useState(userInfo?.name || '');
+	const [surname, setSurname] = useState(userInfo?.surname || '');
+	const [email, setEmail] = useState(userInfo?.email || '');
+	const [birthdate, setBirthdate] = useState(dayjs(userInfo?.birthdate) || null);
+	const [phoneNumber, setPhoneNumber] = useState(userInfo?.phoneNumber || '');
+	const [postalCode, setPostalCode] = useState(userInfo?.postalCode || '');
+	const [city, setCity] = useState(userInfo?.city || '');
+	const [password, setPassword] = useState<string>('');
+
+	const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+		e.preventDefault(); // prevents page reload
+		setIsLoading(true);
+
+		try {
+			const path = `/users/profile/edit`;
+			const user = auth.currentUser;
+
+			if (user) {
+				await axiosInstance.patch(path, {
+					username,
+					name,
+					surname,
+					email,
+					phone_number: phoneNumber,
+					birthdate,
+					city,
+					postal_code: postalCode,
+				});
+				if (password != '' && password.length >= 6) {
+					await updatePassword(user, password);
+				}
+
+				if (setUserInfo) {
+					setUserInfo({
+						username,
+						name,
+						surname,
+						email,
+						phoneNumber,
+						birthdate: birthdate ? birthdate.toDate() : null,
+						city,
+						postalCode,
+					});
+				}
+			}
+		} catch (error) {
+			console.log(error);
+		} finally {
+			setIsLoading(false);
+		}
 	};
 
 	return (
@@ -40,6 +88,8 @@ export default function ProfilePage() {
 					</Typography>
 				</Box>
 				<Container
+					component='form'
+					onSubmit={handleSubmit}
 					sx={{
 						display: 'flex',
 						flexDirection: 'column',
@@ -61,13 +111,31 @@ export default function ProfilePage() {
 						<Box
 							sx={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-start', width: '100%', maxWidth: 400 }}
 						>
+							<Typography sx={{ color: 'black', mb: 0.5 }}>Slapyvardis</Typography>
+							<TextField
+								variant='outlined'
+								fullWidth
+								name='name'
+								value={username}
+								onChange={(e) => setUsername(e.target.value)}
+								disabled={!editable}
+								sx={{
+									bgcolor: '#eaeaea',
+									borderRadius: 1,
+									fontWeight: 'bold',
+								}}
+							/>
+						</Box>
+						<Box
+							sx={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-start', width: '100%', maxWidth: 400 }}
+						>
 							<Typography sx={{ color: 'black', mb: 0.5 }}>Vardas</Typography>
 							<TextField
 								variant='outlined'
 								fullWidth
 								name='name'
-								value={user.name}
-								onChange={handleChange}
+								value={name}
+								onChange={(e) => setName(e.target.value)}
 								disabled={!editable}
 								sx={{
 									bgcolor: '#eaeaea',
@@ -85,27 +153,8 @@ export default function ProfilePage() {
 								variant='outlined'
 								fullWidth
 								name='surname'
-								value={user.surname}
-								onChange={handleChange}
-								disabled={!editable}
-								sx={{
-									bgcolor: '#eaeaea',
-									borderRadius: 1,
-									fontWeight: 'bold',
-								}}
-							/>
-						</Box>
-
-						<Box
-							sx={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-start', width: '100%', maxWidth: 400 }}
-						>
-							<Typography sx={{ color: 'black', mb: 0.5 }}>Gimimo metai</Typography>
-							<TextField
-								variant='outlined'
-								fullWidth
-								name='birthdate'
-								value={user.birthdate}
-								onChange={handleChange}
+								value={surname}
+								onChange={(e) => setSurname(e.target.value)}
 								disabled={!editable}
 								sx={{
 									bgcolor: '#eaeaea',
@@ -123,8 +172,82 @@ export default function ProfilePage() {
 								variant='outlined'
 								fullWidth
 								name='email'
-								value={user.email}
-								onChange={handleChange}
+								value={email}
+								onChange={(e) => setEmail(e.target.value)}
+								disabled={!editable}
+								sx={{
+									bgcolor: '#eaeaea',
+									borderRadius: 1,
+									fontWeight: 'bold',
+								}}
+							/>
+						</Box>
+
+						<Box
+							sx={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-start', width: '100%', maxWidth: 400 }}
+						>
+							<Typography sx={{ color: 'black', mb: 0.5 }}>Telefono numeris</Typography>
+							<TextField
+								variant='outlined'
+								fullWidth
+								name='phoneNumber'
+								value={phoneNumber}
+								onChange={(e) => setPhoneNumber(e.target.value)}
+								disabled={!editable}
+								sx={{
+									bgcolor: '#eaeaea',
+									borderRadius: 1,
+									fontWeight: 'bold',
+								}}
+							/>
+						</Box>
+
+						<Box
+							sx={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-start', width: '100%', maxWidth: 400 }}
+						>
+							<Typography sx={{ color: 'black', mb: 0.5 }}>Gimimo metai</Typography>
+							<DatePicker
+								name='birthdate'
+								disabled={!editable}
+								sx={{
+									bgcolor: '#eaeaea',
+									borderRadius: 1,
+									fontWeight: 'bold',
+								}}
+								value={birthdate}
+								onChange={(newValue) => setBirthdate(newValue)}
+							/>
+						</Box>
+
+						<Box
+							sx={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-start', width: '100%', maxWidth: 400 }}
+						>
+							<Typography sx={{ color: 'black', mb: 0.5 }}>Miestas</Typography>
+							<TextField
+								variant='outlined'
+								fullWidth
+								name='city'
+								value={city}
+								onChange={(e) => setCity(e.target.value)}
+								disabled={!editable}
+								sx={{
+									bgcolor: '#eaeaea',
+									borderRadius: 1,
+									fontWeight: 'bold',
+								}}
+							/>
+						</Box>
+
+						<Box
+							sx={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-start', width: '100%', maxWidth: 400 }}
+						>
+							<Typography sx={{ color: 'black', mb: 0.5 }}>Pašto kodas</Typography>
+							<TextField
+								variant='outlined'
+								fullWidth
+								name='postalCode'
+								value={postalCode}
+								onChange={(e) => setPostalCode(e.target.value)}
 								disabled={!editable}
 								sx={{
 									bgcolor: '#eaeaea',
@@ -142,10 +265,11 @@ export default function ProfilePage() {
 								variant='outlined'
 								fullWidth
 								name='password'
-								value={user.password}
-								onChange={handleChange}
+								placeholder='*******'
 								disabled={!editable}
+								value={password}
 								type='password'
+								onChange={(e) => setPassword(e.target.value)}
 								sx={{
 									bgcolor: '#eaeaea',
 									borderRadius: 1,
@@ -167,7 +291,8 @@ export default function ProfilePage() {
 									</Button>
 									<Button
 										variant='contained'
-										onClick={() => setEditable(false)}
+										type='submit'
+										disabled={isLoading}
 										sx={{ bgcolor: '#54923D', fontWeight: 'bold' }}
 									>
 										Išsaugoti
@@ -177,6 +302,7 @@ export default function ProfilePage() {
 								<Button
 									variant='contained'
 									onClick={() => setEditable(true)}
+									// onClick={() => console.log(userInfo)}
 									sx={{ bgcolor: '#54923D', fontWeight: 'bold' }}
 								>
 									Koreguoti duomenis

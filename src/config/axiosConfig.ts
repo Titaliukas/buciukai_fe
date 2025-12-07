@@ -8,14 +8,13 @@ const instance = axios.create({
 	baseURL: API_BASE_URL,
 });
 
-const user = auth.currentUser;
-
-if (!user) {
-	throw new Error('User not authenticated');
-}
-
 instance.interceptors.request.use(async (config) => {
-	config.headers.Authorization = 'Bearer ' + (await user.getIdToken());
+	const user = auth.currentUser;
+	if (user) {
+		const token = await user.getIdToken();
+		console.log(token);
+		config.headers.Authorization = `Bearer ${token}`;
+	}
 	return config;
 });
 instance.defaults.headers.common['Content-Type'] = 'application/json';
