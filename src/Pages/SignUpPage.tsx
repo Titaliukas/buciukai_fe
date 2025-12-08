@@ -1,9 +1,49 @@
-import { Box, Button, Container, TextField, Typography } from '@mui/material';
+import { Box, Button, CircularProgress, Container, TextField, Typography } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
 import { ROUTES } from '../constants';
+import { useState } from 'react';
+import { createUserWithEmailAndPassword } from 'firebase/auth';
+import { auth } from '../config/FirebaseConfig';
+import axiosInstance from '../config/axiosConfig';
+import { SnackbarError } from '../Components/SnackBarAlert';
 
 export default function SignUpPage() {
 	const navigate = useNavigate();
+
+	const [username, SetUsername] = useState('');
+	const [name, SetName] = useState('');
+	const [surname, SetSurname] = useState('');
+	const [email, SetEmail] = useState('');
+	const [password, SetPassword] = useState('');
+
+	const [isLoading, setIsLoading] = useState(false);
+
+	const [snackbarOpen, setSnackbarOpen] = useState(false);
+	const [snackbarMessage, setSnackbarMessage] = useState('');
+
+	const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+		e.preventDefault(); // prevents page reload
+		setIsLoading(true);
+
+		try {
+			await createUserWithEmailAndPassword(auth, email, password);
+			const user = auth.currentUser;
+			console.log(user);
+
+			const path = `/users/signup`;
+
+			await axiosInstance.post(path, { username, name, surname, email, password, role: 1 });
+			navigate(ROUTES.HomePage, {
+				state: { message: 'Registracija sėkminga!' },
+			});
+		} catch (error) {
+			console.log(error);
+			setSnackbarMessage('Registracija nepavyko!');
+			setSnackbarOpen(true);
+		} finally {
+			setIsLoading(false);
+		}
+	};
 
 	return (
 		<>
@@ -34,6 +74,8 @@ export default function SignUpPage() {
 					</Typography>
 				</Box>
 				<Container
+					component='form'
+					onSubmit={handleSubmit}
 					sx={{
 						display: 'flex',
 						flexDirection: 'column',
@@ -53,13 +95,45 @@ export default function SignUpPage() {
 						}}
 					>
 						<Box
-							sx={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-start', width: '100%', maxWidth: 400 }}
+							sx={{
+								display: 'flex',
+								flexDirection: 'column',
+								alignItems: 'flex-start',
+								width: '100%',
+								maxWidth: 400,
+							}}
+						>
+							<Typography sx={{ color: 'black', mb: 0.5 }}>Slapyvardis</Typography>
+							<TextField
+								variant='outlined'
+								fullWidth
+								placeholder='Slapyvardis'
+								value={username}
+								onChange={(e) => SetUsername(e.target.value)}
+								sx={{
+									bgcolor: '#eaeaea',
+									borderRadius: 1,
+									fontWeight: 'bold',
+								}}
+							/>
+						</Box>
+
+						<Box
+							sx={{
+								display: 'flex',
+								flexDirection: 'column',
+								alignItems: 'flex-start',
+								width: '100%',
+								maxWidth: 400,
+							}}
 						>
 							<Typography sx={{ color: 'black', mb: 0.5 }}>Vardas</Typography>
 							<TextField
 								variant='outlined'
 								fullWidth
 								placeholder='Vardas'
+								value={name}
+								onChange={(e) => SetName(e.target.value)}
 								sx={{
 									bgcolor: '#eaeaea',
 									borderRadius: 1,
@@ -69,13 +143,21 @@ export default function SignUpPage() {
 						</Box>
 
 						<Box
-							sx={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-start', width: '100%', maxWidth: 400 }}
+							sx={{
+								display: 'flex',
+								flexDirection: 'column',
+								alignItems: 'flex-start',
+								width: '100%',
+								maxWidth: 400,
+							}}
 						>
 							<Typography sx={{ color: 'black', mb: 0.5 }}>Pavardė</Typography>
 							<TextField
 								variant='outlined'
 								fullWidth
 								placeholder='Pavardė'
+								value={surname}
+								onChange={(e) => SetSurname(e.target.value)}
 								sx={{
 									bgcolor: '#eaeaea',
 									borderRadius: 1,
@@ -85,29 +167,21 @@ export default function SignUpPage() {
 						</Box>
 
 						<Box
-							sx={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-start', width: '100%', maxWidth: 400 }}
-						>
-							<Typography sx={{ color: 'black', mb: 0.5 }}>Gimimo metai</Typography>
-							<TextField
-								variant='outlined'
-								fullWidth
-								placeholder='(YYYY/MM/DD)'
-								sx={{
-									bgcolor: '#eaeaea',
-									borderRadius: 1,
-									fontWeight: 'bold',
-								}}
-							/>
-						</Box>
-
-						<Box
-							sx={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-start', width: '100%', maxWidth: 400 }}
+							sx={{
+								display: 'flex',
+								flexDirection: 'column',
+								alignItems: 'flex-start',
+								width: '100%',
+								maxWidth: 400,
+							}}
 						>
 							<Typography sx={{ color: 'black', mb: 0.5 }}>E. paštas</Typography>
 							<TextField
 								variant='outlined'
 								fullWidth
 								placeholder='E. paštas'
+								value={email}
+								onChange={(e) => SetEmail(e.target.value)}
 								sx={{
 									bgcolor: '#eaeaea',
 									borderRadius: 1,
@@ -117,7 +191,13 @@ export default function SignUpPage() {
 						</Box>
 
 						<Box
-							sx={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-start', width: '100%', maxWidth: 400 }}
+							sx={{
+								display: 'flex',
+								flexDirection: 'column',
+								alignItems: 'flex-start',
+								width: '100%',
+								maxWidth: 400,
+							}}
 						>
 							<Typography sx={{ color: 'black', mb: 0.5 }}>Slaptažodis</Typography>
 							<TextField
@@ -125,6 +205,8 @@ export default function SignUpPage() {
 								fullWidth
 								placeholder='**********'
 								type='password'
+								value={password}
+								onChange={(e) => SetPassword(e.target.value)}
 								sx={{
 									bgcolor: '#eaeaea',
 									borderRadius: 1,
@@ -144,10 +226,11 @@ export default function SignUpPage() {
 						>
 							<Button
 								variant='contained'
-								onClick={() => navigate(ROUTES.HomePage)}
-								sx={{ bgcolor: '#54923D', fontWeight: 'bold' }}
+								type='submit'
+								disabled={isLoading}
+								sx={{ bgcolor: '#54923D', fontWeight: 'bold', minWidth: '9rem' }}
 							>
-								Registruotis
+								{isLoading ? <CircularProgress size={24} color='success' /> : 'Registruotis'}
 							</Button>
 							<Typography
 								sx={{
@@ -169,6 +252,7 @@ export default function SignUpPage() {
 					</Box>
 				</Container>
 			</Box>
+			<SnackbarError open={snackbarOpen} message={snackbarMessage} onClose={() => setSnackbarOpen(false)} />
 		</>
 	);
 }

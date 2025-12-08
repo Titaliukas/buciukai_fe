@@ -23,35 +23,46 @@ import ReservationStatusReportPage from './Pages/ReservationStatusReportPage';
 import RoomsListPage from './Pages/RoomsListPage';
 import ReservationsPage from './Pages/ReservationsPage';
 import ReservationTimesPage from './Pages/ReservationTimesPage';
+import { ProtectedRoute } from './Components/ProtectedRoute';
+import { AuthContextProvider } from './context/authContext';
+import { LocalizationProvider } from '@mui/x-date-pickers';
+import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 
 function App() {
 	return (
-		<BrowserRouter>
-			<Routes>
-				<Route path={ROUTES.HomePage} element={<HomePage />} />
-				<Route path={ROUTES.ProfilePage} element={<ProfilePage />} />
-				<Route path={ROUTES.SignInPage} element={<SignInPage />} />
-				<Route path={ROUTES.SignUpPage} element={<SignUpPage />} />
-				<Route path={ROUTES.ResetPasswordPage} element={<ResetPasswordPage />} />
-				<Route path={ROUTES.NewPasswordPage} element={<NewPasswordPage />} />
-				<Route path={ROUTES.AdminPage} element={<AdminPage />} />
-				<Route path={ROUTES.ClientManagement} element={<ClientManagementPage />} />
-				<Route path={ROUTES.SystemSetting} element={<SystemSettingPage />} />
-				<Route path={ROUTES.EventForm} element={<EventFormPage />} />
-				<Route path={ROUTES.RoomCreation} element={<RoomCreationPage />} />
-				<Route path={ROUTES.AnnouncementForm} element={<AnnouncementFormPage/>} />
-				<Route path={ROUTES.HotelCreation} element={<HotelCreationPage/>} />
-				<Route path={ROUTES.ReportSelection} element={<ReportSelectionPage/>} />
-				<Route path={ROUTES.OldReports} element={<OldReportsPage/>} />
-				<Route path={ROUTES.ClientHistoryReport} element={<ClientHistoryReportPage/>} />
-				<Route path={ROUTES.DailyOcupancyReport} element={<DailyOcupancyReportPage/>} />
-				<Route path={ROUTES.OccupancyIncomeReport} element={<OccupancyIncomeReportPage/>} />
-				<Route path={ROUTES.ReservationStatusReport} element={<ReservationStatusReportPage/>} />
-				<Route path={ROUTES.RoomsListPage} element={<RoomsListPage />} />
-				<Route path={ROUTES.ReservationsPage} element={<ReservationsPage />} />
-				<Route path={ROUTES.ReservationTimesPage} element={<ReservationTimesPage />} />
-			</Routes>
-		</BrowserRouter>
+		<LocalizationProvider dateAdapter={AdapterDayjs}>
+			<AuthContextProvider>
+				<BrowserRouter>
+					<Routes>
+						<Route element={<ProtectedRoute />}>
+							<Route path={ROUTES.HomePage} element={<HomePage />} />
+							<Route path={ROUTES.ProfilePage} element={<ProfilePage />} />
+							<Route path={ROUTES.AdminPage} element={<AdminPage />} />
+							<Route path={ROUTES.ClientManagement} element={<ClientManagementPage />} />
+							<Route path={ROUTES.SystemSetting} element={<SystemSettingPage />} />
+							<Route path={ROUTES.EventForm} element={<EventFormPage />} />
+							<Route path={ROUTES.RoomCreation} element={<RoomCreationPage />} />
+							<Route path={ROUTES.AnnouncementForm} element={<AnnouncementFormPage />} />
+							<Route path={ROUTES.HotelCreation} element={<HotelCreationPage />} />
+							<Route path={ROUTES.ReportSelection} element={<ReportSelectionPage />} />
+							<Route path={ROUTES.OldReports} element={<OldReportsPage />} />
+							<Route path={ROUTES.ClientHistoryReport} element={<ClientHistoryReportPage />} />
+							<Route path={ROUTES.DailyOcupancyReport} element={<DailyOcupancyReportPage />} />
+							<Route path={ROUTES.OccupancyIncomeReport} element={<OccupancyIncomeReportPage />} />
+							<Route path={ROUTES.ReservationStatusReport} element={<ReservationStatusReportPage />} />
+							<Route path={ROUTES.RoomsListPage} element={<RoomsListPage />} />
+							<Route path={ROUTES.ReservationsPage} element={<ReservationsPage />} />
+							<Route path={ROUTES.ReservationTimesPage} element={<ReservationTimesPage />} />
+						</Route>
+
+						<Route path={ROUTES.SignInPage} element={<SignInPage />} />
+						<Route path={ROUTES.SignUpPage} element={<SignUpPage />} />
+						<Route path={ROUTES.ResetPasswordPage} element={<ResetPasswordPage />} />
+						<Route path={ROUTES.NewPasswordPage} element={<NewPasswordPage />} />
+					</Routes>
+				</BrowserRouter>
+			</AuthContextProvider>
+		</LocalizationProvider>
 	);
 }
 

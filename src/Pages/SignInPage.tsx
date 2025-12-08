@@ -1,9 +1,53 @@
-import { Box, Button, Container, TextField, Typography } from '@mui/material';
-import { useNavigate } from 'react-router-dom';
+import { Box, Button, CircularProgress, Container, TextField, Typography } from '@mui/material';
+import { useLocation, useNavigate } from 'react-router-dom';
 import { ROUTES } from '../constants';
+import { auth } from '../config/FirebaseConfig';
+import { signInWithEmailAndPassword } from 'firebase/auth';
+import { useEffect, useState } from 'react';
+import { SnackbarError, SnackbarSuccess } from '../Components/SnackBarAlert';
 
 export default function SignInPage() {
 	const navigate = useNavigate();
+
+	const [email, SetEmail] = useState('');
+	const [password, SetPassword] = useState('');
+
+	const [isLoading, setIsLoading] = useState(false);
+
+	const [snackbarErrorOpen, setSnackbarErrorOpen] = useState(false);
+	const [snackbarErrorMessage, setSnackbarErrorMessage] = useState('');
+
+	const location = useLocation();
+	const [snackbarSuccessOpen, setSnackbarSuccessOpen] = useState(false);
+	const [snackbarSuccessMessage, setSnackbarSuccessMessage] = useState('');
+
+	// Show snackbar only once when arriving
+	useEffect(() => {
+		if (location.state?.message) {
+			setSnackbarSuccessMessage(location.state.message);
+			setSnackbarSuccessOpen(true);
+			// Clear state so refresh doesn't show snackbar again
+			window.history.replaceState({}, document.title);
+		}
+	}, [location.state]);
+
+	const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+		e.preventDefault(); // prevents page reload
+		setIsLoading(true);
+
+		try {
+			await signInWithEmailAndPassword(auth, email, password);
+			navigate(ROUTES.HomePage, {
+				state: { message: 'Prisijungimas sėkmingas!' },
+			});
+		} catch (error) {
+			console.log(error);
+			setSnackbarErrorMessage('Prisijungimas nepavyko!');
+			setSnackbarErrorOpen(true);
+		} finally {
+			setIsLoading(false);
+		}
+	};
 
 	return (
 		<>
@@ -34,6 +78,8 @@ export default function SignInPage() {
 					</Typography>
 				</Box>
 				<Container
+					component='form'
+					onSubmit={handleSubmit}
 					sx={{
 						display: 'flex',
 						flexDirection: 'column',
@@ -60,6 +106,8 @@ export default function SignInPage() {
 								variant='outlined'
 								fullWidth
 								placeholder='E. paštas'
+								value={email}
+								onChange={(e) => SetEmail(e.target.value)}
 								sx={{
 									bgcolor: '#eaeaea',
 									borderRadius: 1,
@@ -77,6 +125,8 @@ export default function SignInPage() {
 								fullWidth
 								placeholder='**********'
 								type='password'
+								value={password}
+								onChange={(e) => SetPassword(e.target.value)}
 								sx={{
 									bgcolor: '#eaeaea',
 									borderRadius: 1,
@@ -104,10 +154,11 @@ export default function SignInPage() {
 						</Typography>
 						<Button
 							variant='contained'
-							onClick={() => navigate(ROUTES.HomePage)}
-							sx={{ bgcolor: '#54923D', fontWeight: 'bold' }}
+							type='submit'
+							disabled={isLoading}
+							sx={{ bgcolor: '#54923D', fontWeight: 'bold', minWidth: '8rem' }}
 						>
-							Prisijungti
+							{isLoading ? <CircularProgress size={24} color='success' /> : 'Prisijungti'}
 						</Button>
 
 						<Box sx={{ display: 'flex', flexDirection: 'row', gap: 1 }}>
@@ -132,6 +183,16 @@ export default function SignInPage() {
 					</Box>
 				</Container>
 			</Box>
+			<SnackbarError
+				open={snackbarErrorOpen}
+				message={snackbarErrorMessage}
+				onClose={() => setSnackbarErrorOpen(false)}
+			/>
+			<SnackbarSuccess
+				open={snackbarSuccessOpen}
+				message={snackbarSuccessMessage}
+				onClose={() => setSnackbarSuccessOpen(false)}
+			/>
 		</>
 	);
 }

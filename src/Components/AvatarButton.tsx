@@ -1,9 +1,11 @@
-import { Avatar, IconButton, Menu, MenuItem } from '@mui/material';
+import { Avatar, Divider, IconButton, Menu, MenuItem } from '@mui/material';
 import PersonIcon from '@mui/icons-material/Person';
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ROUTES } from '../constants';
 import ConfirmModal from './ConfirmModal';
+import { signOut } from 'firebase/auth';
+import { auth } from '../config/FirebaseConfig';
 
 export default function AvatarButton() {
 	const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
@@ -16,12 +18,15 @@ export default function AvatarButton() {
 	const handleClose = () => {
 		setAnchorEl(null);
 	};
-	const handleLogOut = () => {
+	const handleLogOut = async () => {
 		setAnchorEl(null);
-		navigate('/');
-		setTimeout(() => {
+		try {
+			await signOut(auth);
+
 			setIsLoggedin(false);
-		}, 200);
+		} catch (error) {
+			console.error('Logout failed:', error);
+		}
 	};
 
 	const [openModal, setOpenModal] = useState(false);
@@ -62,9 +67,12 @@ export default function AvatarButton() {
 				{isLoggedin ? (
 					<>
 						<MenuItem onClick={() => navigate(ROUTES.ProfilePage)}>Profilio nustatymai</MenuItem>
-						<MenuItem onClick={() => navigate(ROUTES.AdminPage)}>Admin puslapis</MenuItem>
 						<MenuItem onClick={() => navigate(ROUTES.ReservationsPage)}>Mano rezervacijos</MenuItem>
-						<MenuItem onClick={handleOpenModal}>Atsijungti</MenuItem>
+						<MenuItem onClick={() => navigate(ROUTES.AdminPage)}>Administravimas</MenuItem>
+						<Divider />
+						<MenuItem onClick={handleOpenModal} sx={{ color: 'red' }}>
+							Atsijungti
+						</MenuItem>
 						<ConfirmModal
 							open={openModal}
 							handleClose={handleCloseModal}

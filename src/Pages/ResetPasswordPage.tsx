@@ -1,9 +1,39 @@
-import { Box, Button, Container, TextField, Typography } from '@mui/material';
+import { Box, Button, CircularProgress, Container, TextField, Typography } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
 import { ROUTES } from '../constants';
+import { useState } from 'react';
+import { auth } from '../config/FirebaseConfig';
+import { sendPasswordResetEmail } from 'firebase/auth';
+import { SnackbarError, SnackbarSuccess } from '../Components/SnackBarAlert';
 
 export default function ResetPasswordPage() {
 	const navigate = useNavigate();
+
+	const [email, SetEmail] = useState('');
+
+	const [isLoading, setIsLoading] = useState(false);
+
+	const [snackbarSuccessOpen, setSnackbarSuccessOpen] = useState(false);
+	const [snackbarSuccessMessage, setSnackbarSuccessMessage] = useState('');
+	const [snackbarErrorOpen, setSnackbarErrorOpen] = useState(false);
+	const [snackbarErrorMessage, setSnackbarErrorMessage] = useState('');
+
+	const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+		e.preventDefault(); // prevents page reload
+		setIsLoading(true);
+
+		try {
+			await sendPasswordResetEmail(auth, email);
+			setSnackbarSuccessMessage('Atkūrimo laiškas nusiųstas!');
+			setSnackbarSuccessOpen(true);
+		} catch (error) {
+			console.log(error);
+			setSnackbarErrorMessage('Nepavyko nusiųsti laiško!');
+			setSnackbarErrorOpen(true);
+		} finally {
+			setIsLoading(false);
+		}
+	};
 
 	return (
 		<>
@@ -34,6 +64,8 @@ export default function ResetPasswordPage() {
 					</Typography>
 				</Box>
 				<Container
+					component='form'
+					onSubmit={handleSubmit}
 					sx={{
 						display: 'flex',
 						flexDirection: 'column',
@@ -60,6 +92,8 @@ export default function ResetPasswordPage() {
 								variant='outlined'
 								fullWidth
 								placeholder='E. paštas'
+								value={email}
+								onChange={(e) => SetEmail(e.target.value)}
 								sx={{
 									bgcolor: '#eaeaea',
 									borderRadius: 1,
@@ -79,10 +113,10 @@ export default function ResetPasswordPage() {
 						>
 							<Button
 								variant='contained'
-								onClick={() => navigate(ROUTES.NewPasswordPage)}
-								sx={{ bgcolor: '#54923D', fontWeight: 'bold' }}
+								type='submit'
+								sx={{ bgcolor: '#54923D', fontWeight: 'bold', minWidth: '6rem' }}
 							>
-								Atkurti
+								{isLoading ? <CircularProgress size={24} color='success' /> : 'Atkurti'}
 							</Button>
 							<Typography
 								sx={{
@@ -104,6 +138,16 @@ export default function ResetPasswordPage() {
 					</Box>
 				</Container>
 			</Box>
+			<SnackbarSuccess
+				open={snackbarSuccessOpen}
+				message={snackbarSuccessMessage}
+				onClose={() => setSnackbarSuccessOpen(false)}
+			/>
+			<SnackbarError
+				open={snackbarErrorOpen}
+				message={snackbarErrorMessage}
+				onClose={() => setSnackbarErrorOpen(false)}
+			/>
 		</>
 	);
 }

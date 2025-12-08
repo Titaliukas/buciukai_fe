@@ -1,0 +1,22 @@
+import axios from 'axios';
+import { auth } from './FirebaseConfig';
+
+const API_BASE_URL = String(import.meta.env.VITE_API_BASE_URL);
+const TIMEOUT = 2500; // 2,5 seconds
+
+const instance = axios.create({
+	baseURL: API_BASE_URL,
+});
+
+instance.interceptors.request.use(async (config) => {
+	const user = auth.currentUser;
+	if (user) {
+		const token = await user.getIdToken();
+		config.headers.Authorization = `Bearer ${token}`;
+	}
+	return config;
+});
+instance.defaults.headers.common['Content-Type'] = 'application/json';
+instance.defaults.timeout = TIMEOUT;
+
+export default instance;
