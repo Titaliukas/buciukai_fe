@@ -129,7 +129,8 @@ export default function ProfilePage() {
 
 		const fetchUserInfo = async () => {
 			try {
-				const res = await axiosInstance.get<UserInfo>('/users/profile');
+				const path = '/users/profile';
+				const res = await axiosInstance.get<UserInfo>(path);
 				setUserInfo(res.data);
 			} catch (err) {
 				console.error('Failed to load profile:', err);
