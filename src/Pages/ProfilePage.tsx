@@ -18,6 +18,7 @@ export default function ProfilePage() {
 	const [isLoading, setIsLoading] = useState(false);
 
 	const [username, setUsername] = useState(userInfo?.username || '');
+	const role = 1;
 	const [name, setName] = useState(userInfo?.name || '');
 	const [surname, setSurname] = useState(userInfo?.surname || '');
 	const [email, setEmail] = useState(userInfo?.email || '');
@@ -68,6 +69,7 @@ export default function ProfilePage() {
 						birthdate: birthdate ? birthdate.toDate() : null,
 						city,
 						postalCode,
+						role,
 					});
 				}
 
