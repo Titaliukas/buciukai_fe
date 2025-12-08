@@ -5,6 +5,7 @@ import { useEffect, useState } from 'react';
 import { confirmPasswordReset, verifyPasswordResetCode } from 'firebase/auth';
 import { auth } from '../config/FirebaseConfig';
 import { FirebaseError } from 'firebase/app';
+import { SnackbarError } from '../Components/SnackBarAlert';
 
 export default function NewPasswordPage() {
 	const [searchParams] = useSearchParams();
@@ -13,6 +14,9 @@ export default function NewPasswordPage() {
 	const [newPassword, setNewPassword] = useState('');
 	const [error, setError] = useState('');
 	const [isLoading, setIsLoading] = useState(false);
+
+	const [snackbarOpen, setSnackbarOpen] = useState(false);
+	const [snackbarMessage, setSnackbarMessage] = useState('');
 
 	useEffect(() => {
 		if (!oobCode) return;
@@ -29,9 +33,13 @@ export default function NewPasswordPage() {
 
 		try {
 			await confirmPasswordReset(auth, oobCode, newPassword);
-			navigate(ROUTES.SignInPage);
+			navigate(ROUTES.SignInPage, {
+				state: { message: 'Sukurtas naujas slaptažodis!' },
+			});
 		} catch (err) {
 			const errr = err as FirebaseError;
+			setSnackbarMessage('Nepavyko sukurti naujo slaptažodžio');
+			setSnackbarOpen(true);
 			setError(errr.message);
 		} finally {
 			setIsLoading(false);
@@ -144,6 +152,7 @@ export default function NewPasswordPage() {
 					</Box>
 				</Container>
 			</Box>
+			<SnackbarError open={snackbarOpen} message={snackbarMessage} onClose={() => setSnackbarOpen(false)} />
 		</>
 	);
 }

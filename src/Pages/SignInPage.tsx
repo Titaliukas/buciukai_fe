@@ -1,9 +1,10 @@
 import { Box, Button, CircularProgress, Container, TextField, Typography } from '@mui/material';
-import { useNavigate } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 import { ROUTES } from '../constants';
 import { auth } from '../config/FirebaseConfig';
 import { signInWithEmailAndPassword } from 'firebase/auth';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
+import { SnackbarError, SnackbarSuccess } from '../Components/SnackBarAlert';
 
 export default function SignInPage() {
 	const navigate = useNavigate();
@@ -13,16 +14,36 @@ export default function SignInPage() {
 
 	const [isLoading, setIsLoading] = useState(false);
 
+	const [snackbarErrorOpen, setSnackbarErrorOpen] = useState(false);
+	const [snackbarErrorMessage, setSnackbarErrorMessage] = useState('');
+
+	const location = useLocation();
+	const [snackbarSuccessOpen, setSnackbarSuccessOpen] = useState(false);
+	const [snackbarSuccessMessage, setSnackbarSuccessMessage] = useState('');
+
+	// Show snackbar only once when arriving
+	useEffect(() => {
+		if (location.state?.message) {
+			setSnackbarSuccessMessage(location.state.message);
+			setSnackbarSuccessOpen(true);
+			// Clear state so refresh doesn't show snackbar again
+			window.history.replaceState({}, document.title);
+		}
+	}, [location.state]);
+
 	const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
 		e.preventDefault(); // prevents page reload
 		setIsLoading(true);
 
 		try {
 			await signInWithEmailAndPassword(auth, email, password);
-
-			navigate(ROUTES.HomePage);
+			navigate(ROUTES.HomePage, {
+				state: { message: 'Prisijungimas sėkmingas!' },
+			});
 		} catch (error) {
 			console.log(error);
+			setSnackbarErrorMessage('Prisijungimas nepavyko!');
+			setSnackbarErrorOpen(true);
 		} finally {
 			setIsLoading(false);
 		}
@@ -162,6 +183,16 @@ export default function SignInPage() {
 					</Box>
 				</Container>
 			</Box>
+			<SnackbarError
+				open={snackbarErrorOpen}
+				message={snackbarErrorMessage}
+				onClose={() => setSnackbarErrorOpen(false)}
+			/>
+			<SnackbarSuccess
+				open={snackbarSuccessOpen}
+				message={snackbarSuccessMessage}
+				onClose={() => setSnackbarSuccessOpen(false)}
+			/>
 		</>
 	);
 }

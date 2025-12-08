@@ -5,19 +5,17 @@ import AuthContext from '../context/authContext';
 import { DatePicker } from '@mui/x-date-pickers/DatePicker';
 import dayjs, { Dayjs } from 'dayjs';
 import axiosInstance from '../config/axiosConfig';
-import { deleteUser, updatePassword } from 'firebase/auth';
+import { deleteUser, EmailAuthProvider, reauthenticateWithCredential, updatePassword } from 'firebase/auth';
 import { auth } from '../config/FirebaseConfig';
-import { useNavigate } from 'react-router-dom';
-import { ROUTES } from '../constants';
-import ConfirmModal from '../Components/ConfirmModal';
 import { UserInfo } from '../types/UserInfo';
+import { SnackbarError, SnackbarSuccess } from '../Components/SnackBarAlert';
+import ConfirmModalWithText from '../Components/ConfirmModalWithText';
 
 export default function ProfilePage() {
 	const [editable, setEditable] = useState<boolean>(false);
 	const { user } = useContext(AuthContext);
 	const [userInfo, setUserInfo] = useState<UserInfo | null>(null);
 	const [isLoading, setIsLoading] = useState(false);
-	const navigate = useNavigate();
 
 	const [username, setUsername] = useState(userInfo?.username || '');
 	const [name, setName] = useState(userInfo?.name || '');
@@ -28,6 +26,14 @@ export default function ProfilePage() {
 	const [postalCode, setPostalCode] = useState(userInfo?.postalCode || '');
 	const [city, setCity] = useState(userInfo?.city || '');
 	const [password, setPassword] = useState<string>('');
+
+	const [input, setInput] = useState<string>('');
+
+	const [snackbarErrorOpen, setSnackbarErrorOpen] = useState(false);
+	const [snackbarErrorMessage, setSnackbarErrorMessage] = useState('');
+
+	const [snackbarSuccessOpen, setSnackbarSuccessOpen] = useState(false);
+	const [snackbarSuccessMessage, setSnackbarSuccessMessage] = useState('');
 
 	const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
 		e.preventDefault(); // prevents page reload
@@ -64,9 +70,15 @@ export default function ProfilePage() {
 						postalCode,
 					});
 				}
+
+				setEditable(false);
+				setSnackbarSuccessMessage('Nauji duomenys išsaugoti sėkmingai!');
+				setSnackbarSuccessOpen(true);
 			}
 		} catch (error) {
 			console.log(error);
+			setSnackbarErrorMessage('Naujų duomenų išsaugoti nepavyko!');
+			setSnackbarErrorOpen(true);
 		} finally {
 			setIsLoading(false);
 		}
@@ -79,14 +91,16 @@ export default function ProfilePage() {
 			const path = `/users/profile/delete`;
 			const user = auth.currentUser;
 
-			if (user) {
+			if (user && user.email) {
+				const credential = EmailAuthProvider.credential(user.email, input);
 				await axiosInstance.delete(path);
+				await reauthenticateWithCredential(user, credential);
 				await deleteUser(user);
 			}
 		} catch (error) {
 			console.error(error);
-		} finally {
-			navigate(ROUTES.SignInPage);
+			setSnackbarErrorMessage('Nepavyko ištrinti vartotojo!');
+			setSnackbarErrorOpen(true);
 		}
 	};
 
@@ -96,16 +110,17 @@ export default function ProfilePage() {
 	const handleOpenModal = () => setOpenModal(true);
 	const handleCloseModal = () => setOpenModal(false);
 
-	const handleResultModal = (value: boolean) => {
+	const handleResultModal = (value: boolean, inputValue?: string) => {
+		if (inputValue) setInput(inputValue);
 		setConfirmedModal(value);
 	};
 
 	useEffect(() => {
-		if (confirmedModal === true) {
+		if (confirmedModal === true && input) {
 			handleUserDelete();
 			setConfirmedModal(null);
 		}
-	}, [confirmedModal]);
+	}, [confirmedModal, input]);
 
 	useEffect(() => {
 		if (!user) return;
@@ -374,7 +389,6 @@ export default function ProfilePage() {
 								<Button
 									variant='contained'
 									onClick={() => setEditable(true)}
-									// onClick={() => console.log(userInfo)}
 									sx={{ bgcolor: '#54923D', fontWeight: 'bold' }}
 								>
 									Koreguoti duomenis
@@ -385,18 +399,28 @@ export default function ProfilePage() {
 						<Button variant='contained' onClick={handleOpenModal} color='error' sx={{ fontWeight: 'bold' }}>
 							Ištrinti naudotoją
 						</Button>
-						<ConfirmModal
+						<ConfirmModalWithText
 							open={openModal}
 							handleClose={handleCloseModal}
 							onResult={handleResultModal}
 							title='Patvirtinimas'
-							description='Ar tikrai norite ištrinti savo paskyrą?'
+							description='Jei norite ištrinti savo paskyrą, įveskite slaptažodį.'
 							cancelButton='Ne'
 							confirmButton='Taip, ištrinti'
 						/>
 					</Box>
 				</Container>
 			</Box>
+			<SnackbarError
+				open={snackbarErrorOpen}
+				message={snackbarErrorMessage}
+				onClose={() => setSnackbarErrorOpen(false)}
+			/>
+			<SnackbarSuccess
+				open={snackbarSuccessOpen}
+				message={snackbarSuccessMessage}
+				onClose={() => setSnackbarSuccessOpen(false)}
+			/>
 		</>
 	);
 }

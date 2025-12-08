@@ -24,8 +24,6 @@ export default function AvatarButton() {
 			await signOut(auth);
 
 			setIsLoggedin(false);
-
-			navigate(ROUTES.SignInPage);
 		} catch (error) {
 			console.error('Logout failed:', error);
 		}

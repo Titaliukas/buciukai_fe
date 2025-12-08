@@ -5,6 +5,7 @@ import { useState } from 'react';
 import { createUserWithEmailAndPassword } from 'firebase/auth';
 import { auth } from '../config/FirebaseConfig';
 import axiosInstance from '../config/axiosConfig';
+import { SnackbarError } from '../Components/SnackBarAlert';
 
 export default function SignUpPage() {
 	const navigate = useNavigate();
@@ -16,6 +17,9 @@ export default function SignUpPage() {
 	const [password, SetPassword] = useState('');
 
 	const [isLoading, setIsLoading] = useState(false);
+
+	const [snackbarOpen, setSnackbarOpen] = useState(false);
+	const [snackbarMessage, setSnackbarMessage] = useState('');
 
 	const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
 		e.preventDefault(); // prevents page reload
@@ -29,9 +33,13 @@ export default function SignUpPage() {
 			const path = `/users/signup`;
 
 			await axiosInstance.post(path, { username, name, surname, email, password, role: 1 });
-			navigate(ROUTES.HomePage);
+			navigate(ROUTES.HomePage, {
+				state: { message: 'Registracija sėkminga!' },
+			});
 		} catch (error) {
 			console.log(error);
+			setSnackbarMessage('Registracija nepavyko!');
+			setSnackbarOpen(true);
 		} finally {
 			setIsLoading(false);
 		}
@@ -244,6 +252,7 @@ export default function SignUpPage() {
 					</Box>
 				</Container>
 			</Box>
+			<SnackbarError open={snackbarOpen} message={snackbarMessage} onClose={() => setSnackbarOpen(false)} />
 		</>
 	);
 }

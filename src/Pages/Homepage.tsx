@@ -2,6 +2,9 @@ import { Box, Container, Typography } from '@mui/material';
 import SearchBar from '../Components/SearchBar';
 import HotelCard from '../Components/HotelCard';
 import NavBar from '../Components/NavBar';
+import { useLocation } from 'react-router-dom';
+import { useEffect, useState } from 'react';
+import { SnackbarSuccess } from '../Components/SnackBarAlert';
 
 const hotelList = [
 	{
@@ -25,6 +28,20 @@ const hotelList = [
 ];
 
 export default function HomePage() {
+	const location = useLocation();
+	const [snackbarOpen, setSnackbarOpen] = useState(false);
+	const [snackbarMessage, setSnackbarMessage] = useState('');
+
+	// Show snackbar only once when arriving
+	useEffect(() => {
+		if (location.state?.message) {
+			setSnackbarMessage(location.state.message);
+			setSnackbarOpen(true);
+			// Clear state so refresh doesn't show snackbar again
+			window.history.replaceState({}, document.title);
+		}
+	}, [location.state]);
+
 	return (
 		<>
 			<NavBar />
@@ -61,6 +78,7 @@ export default function HomePage() {
 					))}
 				</Container>
 			</Box>
+			<SnackbarSuccess open={snackbarOpen} message={snackbarMessage} onClose={() => setSnackbarOpen(false)} />
 		</>
 	);
 }

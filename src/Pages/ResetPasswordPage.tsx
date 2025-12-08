@@ -4,6 +4,7 @@ import { ROUTES } from '../constants';
 import { useState } from 'react';
 import { auth } from '../config/FirebaseConfig';
 import { sendPasswordResetEmail } from 'firebase/auth';
+import { SnackbarError, SnackbarSuccess } from '../Components/SnackBarAlert';
 
 export default function ResetPasswordPage() {
 	const navigate = useNavigate();
@@ -12,14 +13,23 @@ export default function ResetPasswordPage() {
 
 	const [isLoading, setIsLoading] = useState(false);
 
+	const [snackbarSuccessOpen, setSnackbarSuccessOpen] = useState(false);
+	const [snackbarSuccessMessage, setSnackbarSuccessMessage] = useState('');
+	const [snackbarErrorOpen, setSnackbarErrorOpen] = useState(false);
+	const [snackbarErrorMessage, setSnackbarErrorMessage] = useState('');
+
 	const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
 		e.preventDefault(); // prevents page reload
 		setIsLoading(true);
 
 		try {
 			await sendPasswordResetEmail(auth, email);
+			setSnackbarSuccessMessage('Atkūrimo laiškas nusiųstas!');
+			setSnackbarSuccessOpen(true);
 		} catch (error) {
 			console.log(error);
+			setSnackbarErrorMessage('Nepavyko nusiųsti laiško!');
+			setSnackbarErrorOpen(true);
 		} finally {
 			setIsLoading(false);
 		}
@@ -128,6 +138,16 @@ export default function ResetPasswordPage() {
 					</Box>
 				</Container>
 			</Box>
+			<SnackbarSuccess
+				open={snackbarSuccessOpen}
+				message={snackbarSuccessMessage}
+				onClose={() => setSnackbarSuccessOpen(false)}
+			/>
+			<SnackbarError
+				open={snackbarErrorOpen}
+				message={snackbarErrorMessage}
+				onClose={() => setSnackbarErrorOpen(false)}
+			/>
 		</>
 	);
 }
