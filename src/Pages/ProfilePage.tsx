@@ -5,19 +5,25 @@ import AuthContext from '../context/authContext';
 import { DatePicker } from '@mui/x-date-pickers/DatePicker';
 import dayjs, { Dayjs } from 'dayjs';
 import axiosInstance from '../config/axiosConfig';
-import { updatePassword } from 'firebase/auth';
+import { deleteUser, updatePassword } from 'firebase/auth';
 import { auth } from '../config/FirebaseConfig';
+import { useNavigate } from 'react-router-dom';
+import { ROUTES } from '../constants';
+import ConfirmModal from '../Components/ConfirmModal';
+import { UserInfo } from '../types/UserInfo';
 
 export default function ProfilePage() {
 	const [editable, setEditable] = useState<boolean>(false);
-	const { userInfo, setUserInfo } = useContext(AuthContext);
+	const { user } = useContext(AuthContext);
+	const [userInfo, setUserInfo] = useState<UserInfo | null>(null);
 	const [isLoading, setIsLoading] = useState(false);
+	const navigate = useNavigate();
 
 	const [username, setUsername] = useState(userInfo?.username || '');
 	const [name, setName] = useState(userInfo?.name || '');
 	const [surname, setSurname] = useState(userInfo?.surname || '');
 	const [email, setEmail] = useState(userInfo?.email || '');
-	const [birthdate, setBirthdate] = useState(dayjs(userInfo?.birthdate) || null);
+	const [birthdate, setBirthdate] = useState<Dayjs | null>(dayjs(userInfo?.birthdate) || null);
 	const [phoneNumber, setPhoneNumber] = useState(userInfo?.phoneNumber || '');
 	const [postalCode, setPostalCode] = useState(userInfo?.postalCode || '');
 	const [city, setCity] = useState(userInfo?.city || '');
@@ -37,10 +43,10 @@ export default function ProfilePage() {
 					name,
 					surname,
 					email,
-					phone_number: phoneNumber,
+					phoneNumber,
 					birthdate,
 					city,
-					postal_code: postalCode,
+					postalCode,
 				});
 				if (password != '' && password.length >= 6) {
 					await updatePassword(user, password);
@@ -65,6 +71,71 @@ export default function ProfilePage() {
 			setIsLoading(false);
 		}
 	};
+
+	const handleUserDelete = async () => {
+		setIsLoading(true);
+
+		try {
+			const path = `/users/profile/delete`;
+			const user = auth.currentUser;
+
+			if (user) {
+				await axiosInstance.delete(path);
+				await deleteUser(user);
+			}
+		} catch (error) {
+			console.error(error);
+		} finally {
+			navigate(ROUTES.SignInPage);
+		}
+	};
+
+	const [openModal, setOpenModal] = useState(false);
+	const [confirmedModal, setConfirmedModal] = useState<boolean | null>(null);
+
+	const handleOpenModal = () => setOpenModal(true);
+	const handleCloseModal = () => setOpenModal(false);
+
+	const handleResultModal = (value: boolean) => {
+		setConfirmedModal(value);
+	};
+
+	useEffect(() => {
+		if (confirmedModal === true) {
+			handleUserDelete();
+			setConfirmedModal(null);
+		}
+	}, [confirmedModal]);
+
+	useEffect(() => {
+		if (!user) return;
+
+		const fetchUserInfo = async () => {
+			try {
+				const res = await axiosInstance.get<UserInfo>('/users/profile');
+				setUserInfo(res.data);
+			} catch (err) {
+				console.error('Failed to load profile:', err);
+			} finally {
+				setIsLoading(false);
+			}
+		};
+
+		fetchUserInfo();
+	}, [user]);
+
+	useEffect(() => {
+		if (userInfo) {
+			setUsername(userInfo.username || '');
+			setName(userInfo.name || '');
+			setSurname(userInfo.surname || '');
+			setEmail(userInfo.email || '');
+			setBirthdate(userInfo.birthdate ? dayjs(userInfo.birthdate) : null);
+			setPhoneNumber(userInfo.phoneNumber || '');
+			setPostalCode(userInfo.postalCode || '');
+			setCity(userInfo.city || '');
+		}
+	}, [userInfo]);
 
 	return (
 		<>
@@ -96,6 +167,7 @@ export default function ProfilePage() {
 						alignItems: 'center',
 						gap: 2,
 						pt: 2,
+						pb: 2,
 					}}
 				>
 					<Box
@@ -309,6 +381,19 @@ export default function ProfilePage() {
 								</Button>
 							)}
 						</Box>
+
+						<Button variant='contained' onClick={handleOpenModal} color='error' sx={{ fontWeight: 'bold' }}>
+							Ištrinti naudotoją
+						</Button>
+						<ConfirmModal
+							open={openModal}
+							handleClose={handleCloseModal}
+							onResult={handleResultModal}
+							title='Patvirtinimas'
+							description='Ar tikrai norite ištrinti savo paskyrą?'
+							cancelButton='Ne'
+							confirmButton='Taip, ištrinti'
+						/>
 					</Box>
 				</Container>
 			</Box>
