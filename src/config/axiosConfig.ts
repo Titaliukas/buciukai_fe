@@ -13,6 +13,11 @@ instance.interceptors.request.use(async (config) => {
 	if (user) {
 		const token = await user.getIdToken();
 		config.headers.Authorization = `Bearer ${token}`;
+	} else {
+		const token = localStorage.getItem('token'); 
+		if (token) {
+			config.headers.Authorization = `Bearer ${token}`;
+		}
 	}
 	return config;
 });

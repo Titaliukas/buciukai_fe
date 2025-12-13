@@ -37,6 +37,13 @@ export default function SignInPage() {
 
 		try {
 			await signInWithEmailAndPassword(auth, email, password);
+
+			const user = auth.currentUser;
+			if (user) {
+				const token = await user.getIdToken();
+				localStorage.setItem("token", token); 
+			}
+
 			navigate(ROUTES.HomePage, {
 				state: { message: 'Prisijungimas sėkmingas!' },
 			});

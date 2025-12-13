@@ -33,6 +33,12 @@ export default function SignUpPage() {
 			const path = `/users/signup`;
 
 			await axiosInstance.post(path, { username, name, surname, email, password, role: 1 });
+
+			if (user) {
+				const token = await user.getIdToken();
+				localStorage.setItem("token", token); 
+			}
+			
 			navigate(ROUTES.HomePage, {
 				state: { message: 'Registracija sėkminga!' },
 			});
