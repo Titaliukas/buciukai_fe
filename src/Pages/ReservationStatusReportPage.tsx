@@ -101,6 +101,15 @@ export default function RoomStatusReportPage() {
 					status: statusFilter,
 				},
 			});
+
+            const hotelName = hotels.find(h => h.id === selectedHotel)?.name || 'Unknown Hotel';
+                    const reportName = `Kambarių būsenos ataskaita -${statusFilter} - ${hotelName}`;
+                    
+                    await axiosInstance.post('/reports/hotel-revenue/save', {
+                        reportName: reportName,
+                        startDate: selectedDate,
+                    });
+
 			setReport(response.data);
 		} catch (error) {
 			console.error(error);
