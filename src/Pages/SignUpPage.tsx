@@ -2,7 +2,7 @@ import { Box, Button, CircularProgress, Container, TextField, Typography } from 
 import { useNavigate } from 'react-router-dom';
 import { ROUTES } from '../constants';
 import { useState } from 'react';
-import { createUserWithEmailAndPassword } from 'firebase/auth';
+import { createUserWithEmailAndPassword, deleteUser } from 'firebase/auth';
 import { auth } from '../config/FirebaseConfig';
 import axiosInstance from '../config/axiosConfig';
 import { SnackbarError } from '../Components/SnackBarAlert';
@@ -36,14 +36,16 @@ export default function SignUpPage() {
 
 			if (user) {
 				const token = await user.getIdToken();
-				localStorage.setItem("token", token); 
+				localStorage.setItem('token', token);
 			}
-			
+
 			navigate(ROUTES.HomePage, {
 				state: { message: 'Registracija sėkminga!' },
 			});
 		} catch (error) {
 			console.log(error);
+			const user = auth.currentUser;
+			if (user) await deleteUser(user);
 			setSnackbarMessage('Registracija nepavyko!');
 			setSnackbarOpen(true);
 		} finally {
