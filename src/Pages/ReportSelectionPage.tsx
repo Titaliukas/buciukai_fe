@@ -1,4 +1,3 @@
-import React, { useState } from 'react';
 import {
     Box,
     Container,
@@ -7,38 +6,17 @@ import {
 } from '@mui/material';
 import NavBar from '../Components/NavBar';
 import { ROUTES } from '../constants';
-import PopupForm from '../Components/ReportPopupForm';
 
 const reportOptions = [
-    { label: 'Sugeneruoti išsamią užimtumo ir pajamų ataskaitą', link: ROUTES.OccupancyIncomeReport },
+    { label: 'Sugeneruoti užimtumo ir pajamų ataskaitą', link: ROUTES.OccupancyIncomeReport },
     { label: 'Sugeneruoti dienos užimtumo ataskaitą', link: ROUTES.DailyOcupancyReport },
     { label: 'Sugeneruoti rezervacijų būsenos ataskaitą', link: ROUTES.ReservationStatusReport },
     { label: 'Sugeneruoti kliento apsistojimų istorijos ataskaitą', link: ROUTES.ClientHistoryReport },
 ];
 
 export default function ReportSelectionPage() {
-    const [open, setOpen] = useState(false);
-    const [selectedOption, setSelectedOption] = useState<{ label: string; link: string } | null>(null);
-    const [formData, setFormData] = useState({ name: '' });
-
-    const handleOpenForm = (option: { label: string; link: string }) => {
-        setSelectedOption(option);
-        setOpen(true);
-    };
-
-    const handleCloseForm = () => {
-        setOpen(false);
-        setFormData({ name: '' });
-    };
-
-    const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        setFormData({ ...formData, [e.target.name]: e.target.value });
-    };
-
-    const handleSubmit = () => {
-        if (selectedOption) {
-            window.location.href = selectedOption.link;
-        }
+    const handleNavigate = (link: string) => {
+        window.location.href = link;
     };
 
     return (
@@ -112,7 +90,7 @@ export default function ReportSelectionPage() {
                                 <Button
                                     variant="contained"
                                     fullWidth
-                                    onClick={() => handleOpenForm(option)}
+                                    onClick={() => handleNavigate(option.link)}
                                     sx={{
                                         bgcolor: '#54923D',
                                         color: 'white',
@@ -131,58 +109,8 @@ export default function ReportSelectionPage() {
                             </Box>
                         ))}
                     </Box>
-
-                    <Box
-                        sx={{
-                            width: '100%',
-                            display: 'flex',
-                            justifyContent: 'center',
-                            mt: 6,
-                        }}
-                    >
-                        
-                        <Box
-                            sx={{
-                                width: '100%',
-                                display: 'flex',
-                                justifyContent: 'center',
-                                mt: 2,
-                            }}
-                        >
-                        <Button
-                            variant="outlined"
-                            onClick={() => (window.location.href = ROUTES.OldReports)}
-                            sx={{
-                                borderColor: '#54923D',
-                                color: '#54923D',
-                                fontWeight: 'bold',
-                                borderRadius: 2,
-                                py: 1.2,
-                                px: 4,
-                                fontSize: '1rem',
-                                textTransform: 'none',
-                                '&:hover': {
-                                    bgcolor: '#f0f8f0',
-                                    borderColor: '#437531',
-                                    color: '#437531',
-                                },
-                            }}
-                        >
-                            Žiūrėti seniau sukurtas ataskaitas
-                        </Button>
-                        </Box>
-                    </Box>
                 </Container>
             </Box>
-
-            <PopupForm
-                open={open}
-                title={selectedOption?.label || ''}
-                onClose={handleCloseForm}
-                onSubmit={handleSubmit}
-                formData={formData}
-                onChange={handleChange}
-            />
         </>
     );
 }
