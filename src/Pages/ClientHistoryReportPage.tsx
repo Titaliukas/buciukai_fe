@@ -69,6 +69,15 @@ export default function ClientHistoryPage() {
 					email: clientEmail,
 				},
 			});
+
+            
+                    const reportName = `Kliento apsilankymų istorija - ${clientEmail}`;
+                    
+                    await axiosInstance.post('/reports/hotel-revenue/save', {
+                        reportName: reportName,
+                        startDate: new Date(),
+                    });
+                    
 			setClientHistory(response.data);
 		} catch (error) {
 			console.error(error);

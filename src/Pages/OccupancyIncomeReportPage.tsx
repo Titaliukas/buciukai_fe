@@ -83,42 +83,54 @@ export default function HotelRevenueReportPage() {
 	};
 
 	const fetchReport = async () => {
-		if (!selectedHotel) {
-			setSnackbarMessage('Pasirinkite viešbutį!');
-			setSnackbarOpen(true);
-			return;
-		}
+    if (!selectedHotel) {
+        setSnackbarMessage('Pasirinkite viešbutį!');
+        setSnackbarOpen(true);
+        return;
+    }
 
-		if (!startDate || !endDate) {
-			setSnackbarMessage('Pasirinkite datos intervalą!');
-			setSnackbarOpen(true);
-			return;
-		}
+    if (!startDate || !endDate) {
+        setSnackbarMessage('Pasirinkite datos intervalą!');
+        setSnackbarOpen(true);
+        return;
+    }
 
-		if (new Date(startDate) > new Date(endDate)) {
-			setSnackbarMessage('Pradžios data negali būti vėlesnė nei pabaigos data!');
-			setSnackbarOpen(true);
-			return;
-		}
+    if (new Date(startDate) > new Date(endDate)) {
+        setSnackbarMessage('Pradžios data negali būti vėlesnė nei pabaigos data!');
+        setSnackbarOpen(true);
+        return;
+    }
 
-		setIsLoading(true);
-		try {
-			const response = await axiosInstance.get('/reports/hotel-revenue', {
-				params: {
-					hotelId: selectedHotel,
-					startDate: startDate,
-					endDate: endDate,
-				},
-			});
-			setReport(response.data);
-		} catch (error) {
-			console.error(error);
-			setSnackbarMessage('Nepavyko gauti ataskaitos!');
-			setSnackbarOpen(true);
-		} finally {
-			setIsLoading(false);
-		}
-	};
+    setIsLoading(true);
+    try {
+        const response = await axiosInstance.get('/reports/hotel-revenue', {
+            params: {
+                hotelId: selectedHotel,
+                startDate: startDate,
+                endDate: endDate,
+            },
+        });
+        setReport(response.data);
+
+        // Auto-save after generating report
+        const hotelName = hotels.find(h => h.id === selectedHotel)?.name || 'Unknown Hotel';
+        const reportName = `Viešbučio pajamų ir užimtumo ataskaita - ${hotelName}`;
+        
+        await axiosInstance.post('/reports/hotel-revenue/save', {
+            reportName: reportName,
+            startDate: startDate,
+            endDate: endDate,
+        });
+        
+        
+    } catch (error) {
+        console.error(error);
+        setSnackbarMessage('Nepavyko gauti ataskaitos!');
+        setSnackbarOpen(true);
+    } finally {
+        setIsLoading(false);
+    }
+};
 
 	const handleGenerateReport = () => {
 		fetchReport();

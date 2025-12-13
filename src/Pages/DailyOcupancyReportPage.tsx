@@ -100,6 +100,15 @@ export default function DailyOccupancyReportPage() {
 					date: selectedDate,
 				},
 			});
+
+            const hotelName = hotels.find(h => h.id === selectedHotel)?.name || 'Unknown Hotel';
+                    const reportName = `Dienos užimtumo ataskaita - ${hotelName}`;
+                    
+                    await axiosInstance.post('/reports/hotel-revenue/save', {
+                        reportName: reportName,
+                        startDate: selectedDate,
+                    });
+
 			setReport(response.data);
 		} catch (error) {
 			console.error(error);
