@@ -1,26 +1,40 @@
-import { Box, Container, Typography } from '@mui/material';
+import { Box, Container, Typography, CircularProgress } from '@mui/material';
 import NavBar from '../Components/NavBar';
 import RoomCard from '../Components/RoomCard';
-
-const RoomList = [
-	{
-		id: '1',
-		type: 'Studio',
-		price: 70,
-	},
-	{
-		id: '2',
-		type: 'Apartment with balcony',
-		price: 80,
-	},
-	{
-		id: '3',
-		type: 'Standard Apartment',
-		price: 90,
-	},
-];
+import { useParams } from 'react-router-dom';
+import { useEffect, useState } from 'react';
+import { getRoomsByHotelId } from '../api/roomApi';
+import type Room from '../types/Room';
 
 export default function RoomsListPage() {
+  const { hotelId } = useParams<{ hotelId: string }>();
+  const [rooms, setRooms] = useState<Room[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    const fetchRooms = async () => {
+      if (!hotelId) {
+        setError('Viešbučio ID nerastas');
+        setLoading(false);
+        return;
+      }
+
+      try {
+        setLoading(true);
+        const data = await getRoomsByHotelId(hotelId);
+        setRooms(data);
+        setError(null);
+      } catch (err) {
+        console.error('Failed to fetch rooms:', err);
+        setError('Nepavyko užkrauti kambarių. Bandykite dar kartą vėliau.');
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchRooms();
+  }, [hotelId]);
   return (
     <>
       <NavBar />
@@ -33,7 +47,25 @@ export default function RoomsListPage() {
             Viešbučio kambariai
           </Typography>
 
-          {RoomList.map((room) => (
+          {loading && (
+            <Box sx={{ display: 'flex', justifyContent: 'center', py: 4 }}>
+              <CircularProgress />
+            </Box>
+          )}
+
+          {error && (
+            <Typography variant='body1' color='error' sx={{ textAlign: 'center', py: 4 }}>
+              {error}
+            </Typography>
+          )}
+
+          {!loading && !error && rooms.length === 0 && (
+            <Typography variant='body1' color='text.secondary' sx={{ textAlign: 'center', py: 4 }}>
+              Kambarių nerasta.
+            </Typography>
+          )}
+
+          {!loading && !error && rooms.map((room) => (
             <RoomCard key={room.id} room={room} />
           ))}
         </Container>
