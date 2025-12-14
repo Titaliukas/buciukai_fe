@@ -21,27 +21,76 @@ export default function SignUpPage() {
 	const [snackbarOpen, setSnackbarOpen] = useState(false);
 	const [snackbarMessage, setSnackbarMessage] = useState('');
 
+	const [emailError, setEmailError] = useState('');
+	const [passwordError, setPasswordError] = useState('');
+	const [nameError, setNameError] = useState('');
+	const [surnameError, setSurnameError] = useState('');
+	const [usernameError, setUsernameError] = useState('');
+
+	const validateEmail = (value: string) => {
+		if (!value) return 'E. paštas yra privalomas';
+		const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+		if (!emailRegex.test(value)) return 'Neteisingas e. pašto formatas';
+		return '';
+	};
+
+	const validatePassword = (value: string) => {
+		if (!value) return 'Slaptažodis yra privalomas';
+		if (value.length < 6) return 'Slaptažodis turi būti bent 6 simbolių';
+		return '';
+	};
+
+	const validateUsername = (value: string) => {
+		if (!value) return 'Slapyvardis yra privalomas';
+		if (value.length < 3) return 'Slapyvardis turi būti bent 3 simbolių';
+		return '';
+	};
+
+	const validateName = (value: string) => {
+		if (!value) return 'Vardas yra privalomas';
+		return '';
+	};
+
+	const validateSurname = (value: string) => {
+		if (!value) return 'Pavardė yra privalomas';
+		return '';
+	};
+
 	const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
 		e.preventDefault(); // prevents page reload
 		setIsLoading(true);
 
 		try {
-			await createUserWithEmailAndPassword(auth, email, password);
-			const user = auth.currentUser;
-			console.log(user);
+			const emailErr = validateEmail(email);
+			const passErr = validatePassword(password);
+			const usernameErr = validateUsername(password);
+			const nameErr = validateName(password);
+			const surnameErr = validateName(password);
 
-			const path = `/users/signup`;
+			setEmailError(emailErr);
+			setPasswordError(passErr);
+			setSurnameError(surnameErr);
+			setUsernameError(usernameErr);
+			setNameError(nameErr);
 
-			await axiosInstance.post(path, { username, name, surname, email, password, role: 1 });
+			if (!emailErr && !passErr && !usernameErr && !nameErr && !surnameErr) {
+				await createUserWithEmailAndPassword(auth, email, password);
+				const user = auth.currentUser;
+				console.log(user);
 
-			if (user) {
-				const token = await user.getIdToken();
-				localStorage.setItem('token', token);
+				const path = `/users/signup`;
+
+				await axiosInstance.post(path, { username, name, surname, email, password, role: 1 });
+
+				if (user) {
+					const token = await user.getIdToken();
+					localStorage.setItem('token', token);
+				}
+
+				navigate(ROUTES.HomePage, {
+					state: { message: 'Registracija sėkminga!' },
+				});
 			}
-
-			navigate(ROUTES.HomePage, {
-				state: { message: 'Registracija sėkminga!' },
-			});
 		} catch (error) {
 			console.log(error);
 			const user = auth.currentUser;
@@ -117,7 +166,12 @@ export default function SignUpPage() {
 								fullWidth
 								placeholder='Slapyvardis'
 								value={username}
-								onChange={(e) => SetUsername(e.target.value)}
+								onChange={(e) => {
+									SetUsername(e.target.value);
+									setUsernameError(validateUsername(e.target.value));
+								}}
+								error={Boolean(usernameError)}
+								helperText={usernameError}
 								sx={{
 									bgcolor: '#eaeaea',
 									borderRadius: 1,
@@ -141,7 +195,12 @@ export default function SignUpPage() {
 								fullWidth
 								placeholder='Vardas'
 								value={name}
-								onChange={(e) => SetName(e.target.value)}
+								onChange={(e) => {
+									SetName(e.target.value);
+									setNameError(validateName(e.target.value));
+								}}
+								error={Boolean(nameError)}
+								helperText={nameError}
 								sx={{
 									bgcolor: '#eaeaea',
 									borderRadius: 1,
@@ -165,7 +224,12 @@ export default function SignUpPage() {
 								fullWidth
 								placeholder='Pavardė'
 								value={surname}
-								onChange={(e) => SetSurname(e.target.value)}
+								onChange={(e) => {
+									SetSurname(e.target.value);
+									setSurnameError(validateSurname(e.target.value));
+								}}
+								error={Boolean(surnameError)}
+								helperText={surnameError}
 								sx={{
 									bgcolor: '#eaeaea',
 									borderRadius: 1,
@@ -189,7 +253,12 @@ export default function SignUpPage() {
 								fullWidth
 								placeholder='E. paštas'
 								value={email}
-								onChange={(e) => SetEmail(e.target.value)}
+								onChange={(e) => {
+									SetEmail(e.target.value);
+									setEmailError(validateEmail(e.target.value));
+								}}
+								error={Boolean(emailError)}
+								helperText={emailError}
 								sx={{
 									bgcolor: '#eaeaea',
 									borderRadius: 1,
@@ -214,7 +283,12 @@ export default function SignUpPage() {
 								placeholder='**********'
 								type='password'
 								value={password}
-								onChange={(e) => SetPassword(e.target.value)}
+								onChange={(e) => {
+									SetPassword(e.target.value);
+									setPasswordError(validatePassword(e.target.value));
+								}}
+								error={Boolean(passwordError)}
+								helperText={passwordError}
 								sx={{
 									bgcolor: '#eaeaea',
 									borderRadius: 1,
