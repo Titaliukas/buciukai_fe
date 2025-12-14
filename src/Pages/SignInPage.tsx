@@ -21,6 +21,22 @@ export default function SignInPage() {
 	const [snackbarSuccessOpen, setSnackbarSuccessOpen] = useState(false);
 	const [snackbarSuccessMessage, setSnackbarSuccessMessage] = useState('');
 
+	const [emailError, setEmailError] = useState('');
+	const [passwordError, setPasswordError] = useState('');
+
+	const validateEmail = (value: string) => {
+		if (!value) return 'E. paštas yra privalomas';
+		const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+		if (!emailRegex.test(value)) return 'Neteisingas e. pašto formatas';
+		return '';
+	};
+
+	const validatePassword = (value: string) => {
+		if (!value) return 'Slaptažodis yra privalomas';
+		if (value.length < 6) return 'Slaptažodis turi būti bent 6 simbolių';
+		return '';
+	};
+
 	// Show snackbar only once when arriving
 	useEffect(() => {
 		if (location.state?.message) {
@@ -36,17 +52,25 @@ export default function SignInPage() {
 		setIsLoading(true);
 
 		try {
-			await signInWithEmailAndPassword(auth, email, password);
+			const emailErr = validateEmail(email);
+			const passErr = validatePassword(password);
 
-			const user = auth.currentUser;
-			if (user) {
-				const token = await user.getIdToken();
-				localStorage.setItem("token", token); 
+			setEmailError(emailErr);
+			setPasswordError(passErr);
+
+			if (!emailErr && !passErr) {
+				await signInWithEmailAndPassword(auth, email, password);
+
+				const user = auth.currentUser;
+				if (user) {
+					const token = await user.getIdToken();
+					localStorage.setItem('token', token);
+				}
+
+				navigate(ROUTES.HomePage, {
+					state: { message: 'Prisijungimas sėkmingas!' },
+				});
 			}
-
-			navigate(ROUTES.HomePage, {
-				state: { message: 'Prisijungimas sėkmingas!' },
-			});
 		} catch (error) {
 			console.log(error);
 			setSnackbarErrorMessage('Prisijungimas nepavyko!');
@@ -108,13 +132,18 @@ export default function SignInPage() {
 						<Box
 							sx={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-start', width: '100%', maxWidth: 400 }}
 						>
-							<Typography sx={{ color: 'black', mb: 0.5 }}>E. Paštas</Typography>
+							<Typography sx={{ color: 'black', mb: 0.5 }}>E. Paštas*</Typography>
 							<TextField
 								variant='outlined'
 								fullWidth
 								placeholder='E. paštas'
 								value={email}
-								onChange={(e) => SetEmail(e.target.value)}
+								onChange={(e) => {
+									SetEmail(e.target.value);
+									setEmailError(validateEmail(e.target.value));
+								}}
+								error={Boolean(emailError)}
+								helperText={emailError}
 								sx={{
 									bgcolor: '#eaeaea',
 									borderRadius: 1,
@@ -126,14 +155,19 @@ export default function SignInPage() {
 						<Box
 							sx={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-start', width: '100%', maxWidth: 400 }}
 						>
-							<Typography sx={{ color: 'black', mb: 0.5 }}>Slaptažodis</Typography>
+							<Typography sx={{ color: 'black', mb: 0.5 }}>Slaptažodis*</Typography>
 							<TextField
 								variant='outlined'
 								fullWidth
 								placeholder='**********'
 								type='password'
 								value={password}
-								onChange={(e) => SetPassword(e.target.value)}
+								onChange={(e) => {
+									SetPassword(e.target.value);
+									setPasswordError(validatePassword(e.target.value));
+								}}
+								error={Boolean(passwordError)}
+								helperText={passwordError}
 								sx={{
 									bgcolor: '#eaeaea',
 									borderRadius: 1,

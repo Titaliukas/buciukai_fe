@@ -18,6 +18,14 @@ export default function NewPasswordPage() {
 	const [snackbarOpen, setSnackbarOpen] = useState(false);
 	const [snackbarMessage, setSnackbarMessage] = useState('');
 
+	const [passwordError, setPasswordError] = useState('');
+
+	const validatePassword = (value: string) => {
+		if (!value) return 'Slaptažodis yra privalomas';
+		if (value.length < 6) return 'Slaptažodis turi būti bent 6 simbolių';
+		return '';
+	};
+
 	useEffect(() => {
 		if (!oobCode) return;
 		verifyPasswordResetCode(auth, oobCode).catch(() => setError('Invalid or expired link.'));
@@ -32,10 +40,16 @@ export default function NewPasswordPage() {
 		}
 
 		try {
-			await confirmPasswordReset(auth, oobCode, newPassword);
-			navigate(ROUTES.SignInPage, {
-				state: { message: 'Sukurtas naujas slaptažodis!' },
-			});
+			const passErr = validatePassword(newPassword);
+
+			setPasswordError(passErr);
+
+			if (!passErr) {
+				await confirmPasswordReset(auth, oobCode, newPassword);
+				navigate(ROUTES.SignInPage, {
+					state: { message: 'Sukurtas naujas slaptažodis!' },
+				});
+			}
 		} catch (err) {
 			const errr = err as FirebaseError;
 			setSnackbarMessage('Nepavyko sukurti naujo slaptažodžio');
@@ -100,14 +114,19 @@ export default function NewPasswordPage() {
 						<Box
 							sx={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-start', width: '100%', maxWidth: 400 }}
 						>
-							<Typography sx={{ color: 'black', mb: 0.5 }}>Slaptažodis</Typography>
+							<Typography sx={{ color: 'black', mb: 0.5 }}>Naujas slaptažodis*</Typography>
 							<TextField
 								variant='outlined'
 								fullWidth
 								placeholder='**********'
 								type='password'
 								value={newPassword}
-								onChange={(e) => setNewPassword(e.target.value)}
+								onChange={(e) => {
+									setNewPassword(e.target.value);
+									setPasswordError(validatePassword(e.target.value));
+								}}
+								error={Boolean(passwordError)}
+								helperText={passwordError}
 								sx={{
 									bgcolor: '#eaeaea',
 									borderRadius: 1,
