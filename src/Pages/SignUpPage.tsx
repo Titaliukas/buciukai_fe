@@ -160,7 +160,7 @@ export default function SignUpPage() {
 								maxWidth: 400,
 							}}
 						>
-							<Typography sx={{ color: 'black', mb: 0.5 }}>Slapyvardis</Typography>
+							<Typography sx={{ color: 'black', mb: 0.5 }}>Slapyvardis*</Typography>
 							<TextField
 								variant='outlined'
 								fullWidth
@@ -189,7 +189,7 @@ export default function SignUpPage() {
 								maxWidth: 400,
 							}}
 						>
-							<Typography sx={{ color: 'black', mb: 0.5 }}>Vardas</Typography>
+							<Typography sx={{ color: 'black', mb: 0.5 }}>Vardas*</Typography>
 							<TextField
 								variant='outlined'
 								fullWidth
@@ -218,7 +218,7 @@ export default function SignUpPage() {
 								maxWidth: 400,
 							}}
 						>
-							<Typography sx={{ color: 'black', mb: 0.5 }}>Pavardė</Typography>
+							<Typography sx={{ color: 'black', mb: 0.5 }}>Pavardė*</Typography>
 							<TextField
 								variant='outlined'
 								fullWidth
@@ -247,7 +247,7 @@ export default function SignUpPage() {
 								maxWidth: 400,
 							}}
 						>
-							<Typography sx={{ color: 'black', mb: 0.5 }}>E. paštas</Typography>
+							<Typography sx={{ color: 'black', mb: 0.5 }}>E. paštas*</Typography>
 							<TextField
 								variant='outlined'
 								fullWidth
@@ -276,7 +276,7 @@ export default function SignUpPage() {
 								maxWidth: 400,
 							}}
 						>
-							<Typography sx={{ color: 'black', mb: 0.5 }}>Slaptažodis</Typography>
+							<Typography sx={{ color: 'black', mb: 0.5 }}>Slaptažodis*</Typography>
 							<TextField
 								variant='outlined'
 								fullWidth
