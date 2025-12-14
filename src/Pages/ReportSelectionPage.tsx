@@ -1,44 +1,65 @@
-import React, { useState } from 'react';
 import {
     Box,
     Container,
     Button,
     Typography,
+    Paper,
+    Table,
+    TableBody,
+    TableCell,
+    TableContainer,
+    TableHead,
+    TableRow,
+    CircularProgress,
 } from '@mui/material';
 import NavBar from '../Components/NavBar';
 import { ROUTES } from '../constants';
-import PopupForm from '../Components/ReportPopupForm';
+import { useEffect, useState } from 'react';
+import axiosInstance from '../config/axiosConfig';
 
 const reportOptions = [
-    { label: 'Sugeneruoti išsamią užimtumo ir pajamų ataskaitą', link: ROUTES.OccupancyIncomeReport },
+    { label: 'Sugeneruoti užimtumo ir pajamų ataskaitą', link: ROUTES.OccupancyIncomeReport },
     { label: 'Sugeneruoti dienos užimtumo ataskaitą', link: ROUTES.DailyOcupancyReport },
     { label: 'Sugeneruoti rezervacijų būsenos ataskaitą', link: ROUTES.ReservationStatusReport },
     { label: 'Sugeneruoti kliento apsistojimų istorijos ataskaitą', link: ROUTES.ClientHistoryReport },
 ];
 
+interface Report {
+    id: number;
+    reportName: string;
+    generationDate: string;
+    periodStart: string;
+    periodEnd: string | null;
+    adminName: string;
+}
+
 export default function ReportSelectionPage() {
-    const [open, setOpen] = useState(false);
-    const [selectedOption, setSelectedOption] = useState<{ label: string; link: string } | null>(null);
-    const [formData, setFormData] = useState({ name: '' });
+    const [reports, setReports] = useState<Report[]>([]);
+    const [isLoading, setIsLoading] = useState(false);
 
-    const handleOpenForm = (option: { label: string; link: string }) => {
-        setSelectedOption(option);
-        setOpen(true);
+    const handleNavigate = (link: string) => {
+        window.location.href = link;
     };
 
-    const handleCloseForm = () => {
-        setOpen(false);
-        setFormData({ name: '' });
-    };
-
-    const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        setFormData({ ...formData, [e.target.name]: e.target.value });
-    };
-
-    const handleSubmit = () => {
-        if (selectedOption) {
-            window.location.href = selectedOption.link;
+    const fetchReports = async () => {
+        setIsLoading(true);
+        try {
+            const response = await axiosInstance.get('/reports/list');
+            setReports(response.data);
+        } catch (error) {
+            console.error('Failed to fetch reports:', error);
+        } finally {
+            setIsLoading(false);
         }
+    };
+
+    useEffect(() => {
+        fetchReports();
+    }, []);
+
+    const formatDate = (dateString: string | null) => {
+        if (!dateString) return '-';
+        return new Date(dateString).toLocaleDateString('lt-LT');
     };
 
     return (
@@ -88,6 +109,7 @@ export default function ReportSelectionPage() {
                             flexWrap: 'wrap',
                             justifyContent: 'center',
                             gap: 4,
+                            mb: 8,
                         }}
                     >
                         {reportOptions.map((option) => (
@@ -112,7 +134,7 @@ export default function ReportSelectionPage() {
                                 <Button
                                     variant="contained"
                                     fullWidth
-                                    onClick={() => handleOpenForm(option)}
+                                    onClick={() => handleNavigate(option.link)}
                                     sx={{
                                         bgcolor: '#54923D',
                                         color: 'white',
@@ -132,57 +154,77 @@ export default function ReportSelectionPage() {
                         ))}
                     </Box>
 
-                    <Box
+                    {/* Previously Generated Reports Section */}
+                    <Typography
+                        variant="h5"
                         sx={{
-                            width: '100%',
-                            display: 'flex',
-                            justifyContent: 'center',
-                            mt: 6,
+                            fontWeight: 'bold',
+                            color: '#333',
+                            mb: 3,
                         }}
                     >
-                        
-                        <Box
-                            sx={{
-                                width: '100%',
-                                display: 'flex',
-                                justifyContent: 'center',
-                                mt: 2,
-                            }}
-                        >
-                        <Button
-                            variant="outlined"
-                            onClick={() => (window.location.href = ROUTES.OldReports)}
-                            sx={{
-                                borderColor: '#54923D',
-                                color: '#54923D',
-                                fontWeight: 'bold',
-                                borderRadius: 2,
-                                py: 1.2,
-                                px: 4,
-                                fontSize: '1rem',
-                                textTransform: 'none',
-                                '&:hover': {
-                                    bgcolor: '#f0f8f0',
-                                    borderColor: '#437531',
-                                    color: '#437531',
-                                },
-                            }}
-                        >
-                            Žiūrėti seniau sukurtas ataskaitas
-                        </Button>
+                        Anksčiau sugeneruotos ataskaitos
+                    </Typography>
+
+                    {isLoading ? (
+                        <Box sx={{ display: 'flex', justifyContent: 'center', py: 8 }}>
+                            <CircularProgress sx={{ color: '#54923D' }} />
                         </Box>
-                    </Box>
+                    ) : reports.length > 0 ? (
+                        <TableContainer
+                            component={Paper}
+                            sx={{
+                                borderRadius: 3,
+                                boxShadow: '0 2px 8px rgba(0,0,0,0.1)',
+                            }}
+                        >
+                            <Table>
+                                <TableHead sx={{ bgcolor: '#54923D' }}>
+                                    <TableRow>
+                                        <TableCell sx={{ color: 'white', fontWeight: 'bold' }}>ID</TableCell>
+                                        <TableCell sx={{ color: 'white', fontWeight: 'bold' }}>Ataskaitos pavadinimas</TableCell>
+                                        <TableCell sx={{ color: 'white', fontWeight: 'bold' }}>Generavimo data</TableCell>
+                                        <TableCell sx={{ color: 'white', fontWeight: 'bold' }}>Periodo pradžia</TableCell>
+                                        <TableCell sx={{ color: 'white', fontWeight: 'bold' }}>Periodo pabaiga</TableCell>
+                                        <TableCell sx={{ color: 'white', fontWeight: 'bold' }}>Administratorius</TableCell>
+                                    </TableRow>
+                                </TableHead>
+                                <TableBody>
+                                    {reports.map((report) => (
+                                        <TableRow
+                                            key={report.id}
+                                            sx={{
+                                                '&:nth-of-type(odd)': { bgcolor: '#fafafa' },
+                                                '&:hover': { bgcolor: '#f0f0f0' },
+                                            }}
+                                        >
+                                            <TableCell sx={{ fontWeight: 500 }}>{report.id}</TableCell>
+                                            <TableCell>{report.reportName}</TableCell>
+                                            <TableCell>{formatDate(report.generationDate)}</TableCell>
+                                            <TableCell>{formatDate(report.periodStart)}</TableCell>
+                                            <TableCell>{formatDate(report.periodEnd)}</TableCell>
+                                            <TableCell>{report.adminName}</TableCell>
+                                        </TableRow>
+                                    ))}
+                                </TableBody>
+                            </Table>
+                        </TableContainer>
+                    ) : (
+                        <Paper
+                            sx={{
+                                p: 4,
+                                textAlign: 'center',
+                                borderRadius: 3,
+                                boxShadow: '0 2px 8px rgba(0,0,0,0.1)',
+                            }}
+                        >
+                            <Typography variant="h6" color="textSecondary">
+                                Nėra anksčiau sugeneruotų ataskaitų
+                            </Typography>
+                        </Paper>
+                    )}
                 </Container>
             </Box>
-
-            <PopupForm
-                open={open}
-                title={selectedOption?.label || ''}
-                onClose={handleCloseForm}
-                onSubmit={handleSubmit}
-                formData={formData}
-                onChange={handleChange}
-            />
         </>
     );
 }

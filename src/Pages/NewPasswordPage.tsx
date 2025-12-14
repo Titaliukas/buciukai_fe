@@ -1,9 +1,52 @@
-import { Box, Button, Container, TextField, Typography } from '@mui/material';
-import { useNavigate } from 'react-router-dom';
+import { Box, Button, CircularProgress, Container, TextField, Typography } from '@mui/material';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { ROUTES } from '../constants';
+import { useEffect, useState } from 'react';
+import { confirmPasswordReset, verifyPasswordResetCode } from 'firebase/auth';
+import { auth } from '../config/FirebaseConfig';
+import { FirebaseError } from 'firebase/app';
+import { SnackbarError } from '../Components/SnackBarAlert';
 
 export default function NewPasswordPage() {
+	const [searchParams] = useSearchParams();
 	const navigate = useNavigate();
+	const oobCode = searchParams.get('oobCode');
+	const [newPassword, setNewPassword] = useState('');
+	const [error, setError] = useState('');
+	const [isLoading, setIsLoading] = useState(false);
+
+	const [snackbarOpen, setSnackbarOpen] = useState(false);
+	const [snackbarMessage, setSnackbarMessage] = useState('');
+
+	useEffect(() => {
+		if (!oobCode) return;
+		verifyPasswordResetCode(auth, oobCode).catch(() => setError('Invalid or expired link.'));
+	}, [oobCode]);
+
+	const handleSubmit = async (e: React.FormEvent) => {
+		e.preventDefault();
+		setIsLoading(true);
+		if (!oobCode) {
+			setIsLoading(false);
+			return;
+		}
+
+		try {
+			await confirmPasswordReset(auth, oobCode, newPassword);
+			navigate(ROUTES.SignInPage, {
+				state: { message: 'Sukurtas naujas slaptažodis!' },
+			});
+		} catch (err) {
+			const errr = err as FirebaseError;
+			setSnackbarMessage('Nepavyko sukurti naujo slaptažodžio');
+			setSnackbarOpen(true);
+			setError(errr.message);
+		} finally {
+			setIsLoading(false);
+		}
+	};
+
+	if (error) console.error(error);
 
 	return (
 		<>
@@ -34,6 +77,8 @@ export default function NewPasswordPage() {
 					</Typography>
 				</Box>
 				<Container
+					component='form'
+					onSubmit={handleSubmit}
 					sx={{
 						display: 'flex',
 						flexDirection: 'column',
@@ -61,6 +106,8 @@ export default function NewPasswordPage() {
 								fullWidth
 								placeholder='**********'
 								type='password'
+								value={newPassword}
+								onChange={(e) => setNewPassword(e.target.value)}
 								sx={{
 									bgcolor: '#eaeaea',
 									borderRadius: 1,
@@ -80,10 +127,10 @@ export default function NewPasswordPage() {
 						>
 							<Button
 								variant='contained'
-								onClick={() => navigate(ROUTES.SignInPage)}
-								sx={{ bgcolor: '#54923D', fontWeight: 'bold' }}
+								type='submit'
+								sx={{ bgcolor: '#54923D', fontWeight: 'bold', minWidth: '7.5rem' }}
 							>
-								Atnaujinti
+								{isLoading ? <CircularProgress size={24} color='success' /> : 'Atnaujinti'}
 							</Button>
 							<Typography
 								sx={{
@@ -105,6 +152,7 @@ export default function NewPasswordPage() {
 					</Box>
 				</Container>
 			</Box>
+			<SnackbarError open={snackbarOpen} message={snackbarMessage} onClose={() => setSnackbarOpen(false)} />
 		</>
 	);
 }
