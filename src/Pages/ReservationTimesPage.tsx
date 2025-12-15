@@ -1,8 +1,11 @@
 import { Box, Container, Typography } from '@mui/material';
 import NavBar from '../Components/NavBar';
 import TimeSlotsCalendar from '../Components/TimeSlots';
+import { useParams } from 'react-router-dom';
 
-export default function HomePage() {
+export default function ReservationTimesPage() {
+  const { roomId } = useParams<{ roomId: string }>();
+
   return (
     <>
       <NavBar />
@@ -13,7 +16,7 @@ export default function HomePage() {
           <Typography variant='h5' sx={{ fontWeight: 'bold', mb: 2, color: 'black' }}>
             Rezervacijos Laikai
           </Typography>
-          <TimeSlotsCalendar />
+          {roomId && <TimeSlotsCalendar roomId={roomId} />}
         </Container>
       </Box>
     </>
