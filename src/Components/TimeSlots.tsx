@@ -99,8 +99,18 @@ export default function TimeSlotsCalendar({ roomId }: Props) {
     const enabledDays = days.filter((d) => isSameMonth(d, month) && !isBefore(startOfDay(d), todayStart));
     const enabledKeys = enabledDays.map((d) => format(d, 'yyyy-MM-dd'));
     const allSelected = enabledKeys.every((k) => selected.has(k));
-    if (allSelected) setSelected(new Set());
-    else setSelected(new Set(enabledKeys));
+    
+    setSelected((prev) => {
+      const newSet = new Set(prev);
+      if (allSelected) {
+        // Deselect only current month's enabled days
+        enabledKeys.forEach((k) => newSet.delete(k));
+      } else {
+        // Add current month's enabled days to existing selections
+        enabledKeys.forEach((k) => newSet.add(k));
+      }
+      return newSet;
+    });
   };
 
   const handleClear = async () => {
