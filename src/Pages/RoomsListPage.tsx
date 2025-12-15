@@ -1,14 +1,16 @@
 import { Box, Container, Typography, CircularProgress } from '@mui/material';
 import NavBar from '../Components/NavBar';
 import RoomCard from '../Components/RoomCard';
-import { useParams } from 'react-router-dom';
+import { useParams, useLocation } from 'react-router-dom';
 import { useEffect, useState } from 'react';
 import { getRoomsByHotelId } from '../api/roomApi';
 import type Room from '../types/Room';
 
 export default function RoomsListPage() {
   const { hotelId } = useParams<{ hotelId: string }>();
+  const location = useLocation();
   const [rooms, setRooms] = useState<Room[]>([]);
+  const [hotelName, setHotelName] = useState<string>(location.state?.hotelName || '');
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -24,6 +26,10 @@ export default function RoomsListPage() {
         setLoading(true);
         const data = await getRoomsByHotelId(hotelId);
         setRooms(data);
+        // Use hotel ID as fallback if name wasn't passed
+        if (!hotelName) {
+          setHotelName(`Viešbutis #${hotelId}`);
+        }
         setError(null);
       } catch (err) {
         console.error('Failed to fetch rooms:', err);
@@ -34,7 +40,7 @@ export default function RoomsListPage() {
     };
 
     fetchRooms();
-  }, [hotelId]);
+  }, [hotelId, hotelName]);
   return (
     <>
       <NavBar />
@@ -44,7 +50,7 @@ export default function RoomsListPage() {
         {/* White Content Section */}
         <Container sx={{ mt: 4 }}>
           <Typography variant='h5' sx={{ fontWeight: 'bold', mb: 2, color: 'black' }}>
-            Viešbučio kambariai
+            {hotelName ? `${hotelName} viešbučio kambariai` : 'Viešbučio kambariai'}
           </Typography>
 
           {loading && (
