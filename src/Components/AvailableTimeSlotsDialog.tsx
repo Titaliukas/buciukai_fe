@@ -30,6 +30,7 @@ export default function AvailableTimeSlotsDialog({ open, onClose, room }: Props)
   const [currentMonth, setCurrentMonth] = useState(new Date());
   const [range, setRange] = useState<{ start: Date | null; end: Date | null }>({ start: null, end: null });
   const [availableDates, setAvailableDates] = useState<Set<string>>(new Set());
+  const [exclusionDates, setExclusionDates] = useState<Set<string>>(new Set());
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -53,6 +54,19 @@ export default function AvailableTimeSlotsDialog({ open, onClose, room }: Props)
           }
         });
         setAvailableDates(dates);
+
+        // Track exclusions
+        const exclusions = new Set<string>();
+        data.exclusions.forEach((exclusion) => {
+          const start = parseISO(exclusion.startDate);
+          const end = parseISO(exclusion.endDate);
+          const current = new Date(start);
+          while (current <= end) {
+            exclusions.add(format(current, 'yyyy-MM-dd'));
+            current.setDate(current.getDate() + 1);
+          }
+        });
+        setExclusionDates(exclusions);
       } catch (err) {
         console.error('Failed to fetch availability:', err);
       } finally {
@@ -167,7 +181,8 @@ export default function AvailableTimeSlotsDialog({ open, onClose, room }: Props)
             {days.map((day) => {
               const dateKey = format(day, 'yyyy-MM-dd');
               const isAvailable = availableDates.has(dateKey);
-              const isDisabled = !isSameMonth(day, currentMonth) || isBefore(day, new Date()) || !isAvailable;
+              const isExcluded = exclusionDates.has(dateKey);
+              const isDisabled = !isSameMonth(day, currentMonth) || isBefore(day, new Date()) || !isAvailable || isExcluded;
               const selected =
                 (range.start && format(range.start, 'yyyy-MM-dd') === format(day, 'yyyy-MM-dd')) ||
                 (range.end && format(range.end, 'yyyy-MM-dd') === format(day, 'yyyy-MM-dd')) ||
