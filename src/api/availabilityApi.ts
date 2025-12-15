@@ -42,4 +42,11 @@ export const upsertAvailability = async (
   return data;
 };
 
-export default { getAvailability, upsertAvailability };
+/**
+ * Delete all availability slots and exclusions for a room
+ */
+export const deleteAvailability = async (roomId: number | string): Promise<void> => {
+  await axiosInstance.delete(`/rooms/${roomId}/availability`);
+};
+
+export default { getAvailability, upsertAvailability, deleteAvailability };

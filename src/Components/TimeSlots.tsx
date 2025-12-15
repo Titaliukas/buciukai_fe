@@ -27,7 +27,7 @@ import { startOfDay } from 'date-fns';
 import { lt } from 'date-fns/locale';
 import ArrowBackIosNewIcon from '@mui/icons-material/ArrowBackIosNew';
 import ArrowForwardIosIcon from '@mui/icons-material/ArrowForwardIos';
-import { getAvailability, upsertAvailability, type AvailabilitySlotDTO } from '../api/availabilityApi';
+import { getAvailability, upsertAvailability, deleteAvailability, type AvailabilitySlotDTO } from '../api/availabilityApi';
 
 interface Props {
   roomId: string;
@@ -101,6 +101,21 @@ export default function TimeSlotsCalendar({ roomId }: Props) {
     const allSelected = enabledKeys.every((k) => selected.has(k));
     if (allSelected) setSelected(new Set());
     else setSelected(new Set(enabledKeys));
+  };
+
+  const handleClear = async () => {
+    try {
+      setSaving(true);
+      setError(null);
+      await deleteAvailability(roomId);
+      setSelected(new Set());
+      setSuccessMessage('Laiko tvarkaraštis išvalytas!');
+    } catch (err) {
+      console.error('Failed to delete availability:', err);
+      setError('Nepavyko ištrinti laiko tvarkaraščio.');
+    } finally {
+      setSaving(false);
+    }
   };
 
   const handleSave = async () => {
@@ -246,7 +261,9 @@ export default function TimeSlotsCalendar({ roomId }: Props) {
           Pasirinkti viską
         </Button>
         <Box sx={{ display: 'flex', gap: 2 }}>
-          <Button variant="outlined" onClick={() => setSelected(new Set())}>Išvalyti</Button>
+          <Button variant="outlined" onClick={handleClear} disabled={saving}>
+            {saving ? 'Ištrinami laikai...' : 'Ištrinti laikus'}
+          </Button>
           <Button 
             variant="contained" 
             color="primary" 

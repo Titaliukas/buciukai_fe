@@ -113,7 +113,6 @@ export default function AvailableTimeSlotsDialog({ open, onClose, room }: Props)
   };
 
   const handleSave = () => {
-    console.log('Reserved range', range);
     onClose();
   };
 
