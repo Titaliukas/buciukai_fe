@@ -9,6 +9,8 @@ import {
   Typography,
   IconButton,
   CircularProgress,
+  Snackbar,
+  Alert,
 } from '@mui/material';
 import { addDays, startOfMonth, endOfMonth, startOfWeek, endOfWeek, eachDayOfInterval, format, isSameMonth, isBefore, isAfter, parseISO } from 'date-fns';
 import { lt } from 'date-fns/locale';
@@ -16,6 +18,7 @@ import ChevronLeftIcon from '@mui/icons-material/ChevronLeft';
 import ChevronRightIcon from '@mui/icons-material/ChevronRight';
 import Room from '../types/Room';
 import { getAvailability } from '../api/availabilityApi';
+import { createReservation } from '../api/reservationApi';
 
 interface Props {
   open: boolean;
@@ -28,6 +31,9 @@ export default function AvailableTimeSlotsDialog({ open, onClose, room }: Props)
   const [range, setRange] = useState<{ start: Date | null; end: Date | null }>({ start: null, end: null });
   const [availableDates, setAvailableDates] = useState<Set<string>>(new Set());
   const [loading, setLoading] = useState(true);
+  const [saving, setSaving] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [successMessage, setSuccessMessage] = useState<string | null>(null);
 
   useEffect(() => {
     if (!open || !room.id) return;
@@ -112,8 +118,33 @@ export default function AvailableTimeSlotsDialog({ open, onClose, room }: Props)
     return !isBefore(day, range.start) && !isAfter(day, range.end);
   };
 
-  const handleSave = () => {
-    onClose();
+  const handleSave = async () => {
+    if (!range.start || !room.id) return;
+
+    try {
+      setSaving(true);
+      setError(null);
+
+      // Use selected end date as checkOut, or start date if only one date selected
+      const checkOutDate = range.end || range.start;
+
+      await createReservation({
+        roomId: typeof room.id === 'string' ? parseInt(room.id) : room.id,
+        checkIn: format(range.start, 'yyyy-MM-dd'),
+        checkOut: format(checkOutDate, 'yyyy-MM-dd'),
+      });
+
+      setSuccessMessage('Rezervacija sėkmingai sukurta!');
+      setRange({ start: null, end: null });
+      setTimeout(() => {
+        onClose();
+      }, 1500);
+    } catch (err) {
+      console.error('Failed to create reservation:', err);
+      setError('Nepavyko sukurti rezervacijos. Bandykite dar kartą.');
+    } finally {
+      setSaving(false);
+    }
   };
 
   return (
@@ -164,11 +195,38 @@ export default function AvailableTimeSlotsDialog({ open, onClose, room }: Props)
         )}
       </DialogContent>
       <DialogActions>
-        <Button onClick={onClose}>Atšaukti</Button>
-        <Button variant="contained" color="primary" onClick={handleSave} disabled={!range.start || !range.end}>
-          Patvirtinti
+        <Button onClick={onClose} disabled={saving}>Atšaukti</Button>
+        <Button 
+          variant="contained" 
+          color="primary" 
+          onClick={handleSave} 
+          disabled={!range.start || saving}
+        >
+          {saving ? 'Kuriama...' : 'Patvirtinti'}
         </Button>
       </DialogActions>
+
+      <Snackbar
+        open={!!error}
+        autoHideDuration={6000}
+        onClose={() => setError(null)}
+        anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
+      >
+        <Alert onClose={() => setError(null)} severity="error" sx={{ width: '100%' }}>
+          {error}
+        </Alert>
+      </Snackbar>
+
+      <Snackbar
+        open={!!successMessage}
+        autoHideDuration={3000}
+        onClose={() => setSuccessMessage(null)}
+        anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
+      >
+        <Alert onClose={() => setSuccessMessage(null)} severity="success" sx={{ width: '100%' }}>
+          {successMessage}
+        </Alert>
+      </Snackbar>
     </Dialog>
   );
 }
