@@ -33,6 +33,7 @@ export default function RoomCreationPage() {
   });
 
   const [hotels, setHotels] = useState<Option[]>([]);
+  const [bedTypes, setBedTypes] = useState<Option[]>([]);
   const [roomTypes, setRoomTypes] = useState<Option[]>([]);
   const [loading, setLoading] = useState(false);
   const [fetching, setFetching] = useState(true);
@@ -40,14 +41,15 @@ export default function RoomCreationPage() {
   useEffect(() => {
     const loadData = async () => {
       try {
-        const [hotelsRes, roomTypesRes] = await Promise.all([
+        const [hotelsRes, roomTypesRes, bedTypesRes] = await Promise.all([
           axiosInstance.get<Option[]>('/admin/hotels'),
-          
+          axiosInstance.get<Option[]>('/admin/room-types'),
           axiosInstance.get<Option[]>('/admin/bed-types'),
         ]);
 
         setHotels(hotelsRes.data);
         setRoomTypes(roomTypesRes.data);
+        setBedTypes(bedTypesRes.data);
         
       } catch (err) {
         alert('Nepavyko užkrauti duomenų');
@@ -172,6 +174,21 @@ export default function RoomCreationPage() {
                 </MenuItem>
               ))}
             </TextField>
+
+            <TextField
+  select
+  label="Lovos tipas"
+  required
+  value={room.bedTypeId}
+  onChange={(e) => handleChange('bedTypeId', e.target.value)}
+>
+  {bedTypes.map((b) => (
+    <MenuItem key={b.id} value={b.id}>
+      {b.name}
+    </MenuItem>
+  ))}
+</TextField>
+
 
             <TextField
               multiline

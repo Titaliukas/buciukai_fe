@@ -26,8 +26,8 @@ export default function AnnouncementFormPage() {
     type: 'NEWS',
     title: '',
     message: '',
-    recipientUserIds: [],
     visibleUntil: '',
+    recipients: [],
   });
 
   /* =========================
@@ -54,8 +54,8 @@ export default function AnnouncementFormPage() {
         type: 'NEWS',
         title: '',
         message: '',
-        recipientUserIds: [],
         visibleUntil: '',
+        recipients: [],
       });
     } catch (err) {
       console.error(err);
@@ -89,7 +89,7 @@ export default function AnnouncementFormPage() {
                 setForm(prev => ({
                   ...prev,
                   type: e.target.value as 'NEWS' | 'INBOX',
-                  recipientUserIds: [],
+                  recipients: [],
                 }))
               }
               required
@@ -112,11 +112,11 @@ export default function AnnouncementFormPage() {
                 <InputLabel>Gavėjai</InputLabel>
                 <Select
                   multiple
-                  value={form.recipientUserIds}
+                  value={form.recipients}
                   onChange={(e) =>
                     setForm(prev => ({
                       ...prev,
-                      recipientUserIds: e.target.value as string[],
+                      recipients: e.target.value as string[],
                     }))
                   }
                   input={<OutlinedInput label="Gavėjai" />}
@@ -129,7 +129,7 @@ export default function AnnouncementFormPage() {
                 >
                   {users.map(user => (
                     <MenuItem key={user.id} value={user.id}>
-                      <Checkbox checked={form.recipientUserIds.includes(user.id)} />
+                      <Checkbox checked={form.recipients.includes(user.id)} />
                       <ListItemText
                         primary={user.username}
                         secondary={user.email}

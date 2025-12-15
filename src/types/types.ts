@@ -8,6 +8,6 @@ export type CreateAnnouncementRequest = {
   type: 'NEWS' | 'INBOX';
   title: string;
   message: string;
-  recipientUserIds: string[];
   visibleUntil: string; // yyyy-mm-dd
+  recipients: string[];   // UUID strings
 };
