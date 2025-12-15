@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState, useContext } from 'react';
 import {
   Box,
   Typography,
@@ -11,17 +11,89 @@ import {
   Paper,
   Container,
   TextField,
+  CircularProgress,
 } from '@mui/material';
 import NavBar from '../Components/NavBar';
+import axiosInstance from '../config/axiosConfig';
+import AuthContext from '../context/authContext';
+
+interface AdminUser {
+  id: string;
+  name: string;
+  surname: string;
+  email: string;
+  city: string;
+  birthdate: string;
+  blocked: boolean;
+  firebaseUid: string;
+}
 
 export default function ClientManagementPage() {
-  const [search, setSearch] = useState('');
+  const { user, isLoading } = useContext(AuthContext);
 
-  const [users] = useState([
-    { id: 1, name: 'Jonas', surname: 'Jonaitis', email: 'jonas@example.com', city: 'Vilnius', birthdate: '1990-05-12' },
-    { id: 2, name: 'Ona', surname: 'Petrauskaitė', email: 'ona@example.com', city: 'Kaunas', birthdate: '1988-11-03' },
-    { id: 3, name: 'Mantas', surname: 'Kairys', email: 'mantas@example.com', city: 'Klaipėda', birthdate: '1995-02-21' },
-  ]);
+  const [users, setUsers] = useState<AdminUser[]>([]);
+  const [search, setSearch] = useState('');
+  const [error, setError] = useState<string | null>(null);
+
+  const fetchUsers = async () => {
+    try {
+      const res = await axiosInstance.get<AdminUser[]>('/admin/users');
+      setUsers(res.data);
+    } catch {
+      setError('Nepavyko gauti klientų');
+    }
+  };
+
+  useEffect(() => {
+    if (!isLoading && user) {
+      fetchUsers();
+    }
+  }, [isLoading, user]);
+
+  const toggleBlock = async (u: AdminUser) => {
+    try {
+      await axiosInstance.post(
+        `/admin/users/${u.id}/${u.blocked ? 'unblock' : 'block'}`
+      );
+      fetchUsers();
+    } catch {
+      alert('Nepavyko pakeisti vartotojo būsenos');
+    }
+  };
+
+  const changeEmail = async (u: AdminUser) => {
+    const email = prompt('Įveskite naują el. paštą', u.email);
+    if (!email) return;
+
+    try {
+      await axiosInstance.patch(`/admin/users/${u.id}/email`, { email });
+      fetchUsers();
+    } catch {
+      alert('Nepavyko pakeisti el. pašto');
+    }
+  };
+
+  const changePassword = async (u: AdminUser) => {
+    const password = prompt('Įveskite naują slaptažodį');
+    if (!password) return;
+
+    try {
+      await axiosInstance.patch(`/admin/users/${u.id}/password`, {
+        password,
+      });
+      alert('Slaptažodis pakeistas');
+    } catch {
+      alert('Nepavyko pakeisti slaptažodžio');
+    }
+  };
+
+  if (isLoading) {
+    return (
+      <Box sx={{ display: 'flex', justifyContent: 'center', mt: 10 }}>
+        <CircularProgress />
+      </Box>
+    );
+  }
 
   const filteredUsers = users.filter(
     (u) =>
@@ -36,117 +108,58 @@ export default function ClientManagementPage() {
 
       <Box sx={{ bgcolor: '#f2f2f2', minHeight: '100vh', py: 6 }}>
         <Container maxWidth="lg">
-
-          <Typography
-            variant="h4"
-            sx={{
-              textAlign: 'center',
-              fontWeight: 'bold',
-              color: '#333',
-              mb: 5,
-            }}
-          >
+          <Typography variant="h4" sx={{ textAlign: 'center', mb: 4 }}>
             Klientų Tvarkyklė
           </Typography>
 
+          <TextField
+            placeholder="Ieškoti pagal vardą, pavardę ar el. paštą"
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            fullWidth
+            sx={{ mb: 3, bgcolor: 'white' }}
+          />
 
-          <Box
-            sx={{
-              display: 'flex',
-              justifyContent: 'center',
-              mb: 4,
-            }}
-          >
-            <TextField
-              variant="outlined"
-              placeholder="Ieškoti pagal vardą, pavardę ar el. paštą..."
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-              sx={{
-                width: '100%',
-                maxWidth: 400,
-                bgcolor: 'white',
-                borderRadius: 2,
-                boxShadow: '0 1px 4px rgba(0,0,0,0.1)',
-              }}
-            />
-          </Box>
+          {error && <Typography color="error">{error}</Typography>}
 
-
-          <Paper
-            sx={{
-              borderRadius: 3,
-              overflow: 'hidden',
-              boxShadow: '0 2px 10px rgba(0,0,0,0.1)',
-            }}
-          >
+          <Paper>
             <Table>
               <TableHead sx={{ bgcolor: '#54923D' }}>
                 <TableRow>
-                  <TableCell sx={{ color: 'white', fontWeight: 'bold' }}>Vardas</TableCell>
-                  <TableCell sx={{ color: 'white', fontWeight: 'bold' }}>Pavardė</TableCell>
-                  <TableCell sx={{ color: 'white', fontWeight: 'bold' }}>El. paštas</TableCell>
-                  <TableCell sx={{ color: 'white', fontWeight: 'bold' }}>Miestas</TableCell>
-                  <TableCell sx={{ color: 'white', fontWeight: 'bold' }}>Gimimo data</TableCell>
-                  <TableCell sx={{ color: 'white', fontWeight: 'bold' }} align="center">
-                    Veiksmai
-                  </TableCell>
+                  <TableCell sx={{ color: 'white' }}>Vardas</TableCell>
+                  <TableCell sx={{ color: 'white' }}>Pavardė</TableCell>
+                  <TableCell sx={{ color: 'white' }}>El. paštas</TableCell>
+                  <TableCell sx={{ color: 'white' }}>Miestas</TableCell>
+                  <TableCell sx={{ color: 'white' }}>Veiksmai</TableCell>
                 </TableRow>
               </TableHead>
 
               <TableBody>
-                {filteredUsers.map((user) => (
-                  <TableRow
-                    key={user.id}
-                    sx={{
-                      '&:hover': { bgcolor: '#f9f9f9' },
-                      transition: 'background-color 0.2s ease',
-                    }}
-                  >
-                    <TableCell>{user.name}</TableCell>
-                    <TableCell>{user.surname}</TableCell>
-                    <TableCell>{user.email}</TableCell>
-                    <TableCell>{user.city}</TableCell>
-                    <TableCell>{user.birthdate}</TableCell>
-                    <TableCell align="center">
+                {filteredUsers.map((u) => (
+                  <TableRow key={u.id}>
+                    <TableCell>{u.name}</TableCell>
+                    <TableCell>{u.surname}</TableCell>
+                    <TableCell>{u.email}</TableCell>
+                    <TableCell>{u.city}</TableCell>
+                    <TableCell>
                       <Button
-                        variant="outlined"
-                        size="small"
                         color="error"
-                        sx={{
-                          mr: 1,
-                          textTransform: 'none',
-                          borderRadius: 2,
-                          borderColor: '#d9534f',
-                        }}
-                      >
-                        Blokuoti
-                      </Button>
-                      <Button
-                        variant="outlined"
                         size="small"
-                        sx={{
-                          mr: 1,
-                          textTransform: 'none',
-                          borderRadius: 2,
-                          borderColor: '#f0ad4e',
-                          color: '#f0ad4e',
-                          '&:hover': { bgcolor: '#fff7e6' },
-                        }}
+                        onClick={() => toggleBlock(u)}
+                        sx={{ mr: 1 }}
+                      >
+                        {u.blocked ? 'Atblokuoti' : 'Blokuoti'}
+                      </Button>
+
+                      <Button
+                        size="small"
+                        onClick={() => changePassword(u)}
+                        sx={{ mr: 1 }}
                       >
                         Pakeisti slaptažodį
                       </Button>
-                      <Button
-                        variant="outlined"
-                        size="small"
-                        sx={{
-                          textTransform: 'none',
-                          borderRadius: 2,
-                          borderColor: '#54923D',
-                          color: '#54923D',
-                          '&:hover': { bgcolor: '#edf7ed' },
-                        }}
-                      >
+
+                      <Button size="small" onClick={() => changeEmail(u)}>
                         Pakeisti el. paštą
                       </Button>
                     </TableCell>

@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import {
   Box,
   Typography,
@@ -7,238 +7,188 @@ import {
   TextField,
   Button,
   MenuItem,
+  CircularProgress,
 } from '@mui/material';
 import NavBar from '../Components/NavBar';
-import { RoomDetails } from '../types';
+import axiosInstance from '../config/axiosConfig';
+import { useNavigate } from 'react-router-dom';
+
+interface Option {
+  id: number;
+  name: string;
+}
 
 export default function RoomCreationPage() {
-  const [room, setRoom] = useState<RoomDetails>({
-    hotel: '',
+  const navigate = useNavigate();
+
+  const [room, setRoom] = useState({
+    hotelId: '',
     roomNumber: '',
-    type: '',
-    price: 0,
-    floor: 0,
-    size: 0,
-    bedType: '',
+    price: '',
+    floorNumber: '',
+    sizeM2: '',
     description: '',
-    pictures: [],
+    roomTypeId: '',
+    bedTypeId: '',
   });
 
-  const bedOptions = [
-    'Karališka lova',
-    'Dvigulė lova',
-    'Viengulė lova',
-    'Dvi viengulės lovos',
-  ];
+  const [hotels, setHotels] = useState<Option[]>([]);
+  const [roomTypes, setRoomTypes] = useState<Option[]>([]);
+  const [loading, setLoading] = useState(false);
+  const [fetching, setFetching] = useState(true);
 
-  const hotelOptions = ['Viešbutis 1', 'Viešbutis 2', 'Viešbutis 3'];
+  useEffect(() => {
+    const loadData = async () => {
+      try {
+        const [hotelsRes, roomTypesRes] = await Promise.all([
+          axiosInstance.get<Option[]>('/admin/hotels'),
+          
+          axiosInstance.get<Option[]>('/admin/bed-types'),
+        ]);
 
-  const handleChange = (field: keyof RoomDetails, value: string | number) => {
-    setRoom((prev) => ({
-      ...prev,
-      [field]: value,
-    }));
+        setHotels(hotelsRes.data);
+        setRoomTypes(roomTypesRes.data);
+        
+      } catch (err) {
+        alert('Nepavyko užkrauti duomenų');
+      } finally {
+        setFetching(false);
+      }
+    };
+
+    loadData();
+  }, []);
+
+  const handleChange = (field: string, value: string) => {
+    setRoom((prev) => ({ ...prev, [field]: value }));
   };
 
-  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const files = e.target.files;
-    if (files) {
-      setRoom((prev) => ({
-        ...prev,
-        pictures: Array.from(files),
-      }));
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setLoading(true);
+
+    try {
+      await axiosInstance.post('/admin/rooms', {
+        hotelId: Number(room.hotelId),
+        roomNumber: Number(room.roomNumber),
+        price: Number(room.price),
+        floorNumber: Number(room.floorNumber),
+        sizeM2: Number(room.sizeM2),
+        description: room.description,
+        roomTypeId: Number(room.roomTypeId),
+        bedTypeId: Number(room.bedTypeId),
+      });
+
+      alert('✅ Kambarys sėkmingai sukurtas');
+      navigate('/admin/rooms');
+    } catch (err) {
+      console.error(err);
+      alert('❌ Nepavyko sukurti kambario');
+    } finally {
+      setLoading(false);
     }
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    console.log(room);
-    alert('🏨 Kambarys sėkmingai sukurtas (placeholder)');
-  };
+  if (fetching) {
+    return (
+      <>
+        <NavBar />
+        <Box sx={{ display: 'flex', justifyContent: 'center', mt: 10 }}>
+          <CircularProgress />
+        </Box>
+      </>
+    );
+  }
 
   return (
     <>
       <NavBar />
       <Box sx={{ bgcolor: '#f2f2f2', minHeight: '100vh', py: 6 }}>
         <Container maxWidth="sm">
-          <Typography
-            variant="h4"
-            sx={{ textAlign: 'center', fontWeight: 'bold', color: '#333', mb: 5 }}
-          >
+          <Typography variant="h4" sx={{ textAlign: 'center', mb: 4 }}>
             Naujo Kambario Kūrimas
           </Typography>
 
           <Paper
             component="form"
             onSubmit={handleSubmit}
-            sx={{
-              p: 4,
-              borderRadius: 3,
-              boxShadow: '0 2px 10px rgba(0,0,0,0.1)',
-              bgcolor: 'white',
-              display: 'flex',
-              flexDirection: 'column',
-              gap: 3,
-            }}
+            sx={{ p: 4, display: 'flex', flexDirection: 'column', gap: 2 }}
           >
             <TextField
               select
-              label="Pasirinkite viešbutį"
-              value={room.hotel}
-              onChange={(e) => handleChange('hotel', e.target.value)}
-              fullWidth
+              label="Viešbutis"
               required
-              sx={{ bgcolor: '#f9f9f9', borderRadius: 1 }}
+              value={room.hotelId}
+              onChange={(e) => handleChange('hotelId', e.target.value)}
             >
-              {hotelOptions.map((option) => (
-                <MenuItem key={option} value={option}>
-                  {option}
+              {hotels.map((h) => (
+                <MenuItem key={h.id} value={h.id}>
+                  {h.name}
                 </MenuItem>
               ))}
             </TextField>
 
             <TextField
               label="Kambario numeris"
+              required
               value={room.roomNumber}
               onChange={(e) => handleChange('roomNumber', e.target.value)}
-              fullWidth
-              required
-              sx={{ bgcolor: '#f9f9f9', borderRadius: 1 }}
             />
 
             <TextField
+              type="number"
               label="Kaina (€)"
-              type="number"
+              required
               value={room.price}
-              onChange={(e) => handleChange('price', Number(e.target.value))}
-              fullWidth
-              required
-              sx={{ bgcolor: '#f9f9f9', borderRadius: 1 }}
+              onChange={(e) => handleChange('price', e.target.value)}
             />
 
             <TextField
-              label="Kambario tipas"
-              value={room.type}
-              onChange={(e) => handleChange('type', e.target.value)}
-              fullWidth
-              required
-              sx={{ bgcolor: '#f9f9f9', borderRadius: 1 }}
-            />
-
-            <TextField
-              label="Aukšto numeris"
               type="number"
-              value={room.floor}
-              onChange={(e) => handleChange('floor', Number(e.target.value))}
-              fullWidth
+              label="Aukštas"
               required
-              sx={{ bgcolor: '#f9f9f9', borderRadius: 1 }}
+              value={room.floorNumber}
+              onChange={(e) => handleChange('floorNumber', e.target.value)}
             />
 
             <TextField
-              label="Kambario dydis (m²)"
               type="number"
-              value={room.size}
-              onChange={(e) => handleChange('size', Number(e.target.value))}
-              fullWidth
+              label="Dydis (m²)"
               required
-              sx={{ bgcolor: '#f9f9f9', borderRadius: 1 }}
+              value={room.sizeM2}
+              onChange={(e) => handleChange('sizeM2', e.target.value)}
             />
 
             <TextField
               select
-              label="Lovos tipas"
-              value={room.bedType}
-              onChange={(e) => handleChange('bedType', e.target.value)}
-              fullWidth
+              label="Kambario tipas"
               required
-              sx={{ bgcolor: '#f9f9f9', borderRadius: 1 }}
+              value={room.roomTypeId}
+              onChange={(e) => handleChange('roomTypeId', e.target.value)}
             >
-              {bedOptions.map((bed) => (
-                <MenuItem key={bed} value={bed}>
-                  {bed}
+              {roomTypes.map((t) => (
+                <MenuItem key={t.id} value={t.id}>
+                  {t.name}
                 </MenuItem>
               ))}
             </TextField>
 
-
             <TextField
-              label="Aprašymas"
               multiline
-              rows={4}
+              rows={3}
+              label="Aprašymas"
+              required
               value={room.description}
               onChange={(e) => handleChange('description', e.target.value)}
-              fullWidth
-              required
-              sx={{ bgcolor: '#f9f9f9', borderRadius: 1 }}
             />
-
-
-            <Box>
-              <Typography
-                variant="subtitle1"
-                sx={{ mb: 1, fontWeight: 'medium', color: '#555' }}
-              >
-                Kambario nuotraukos
-              </Typography>
-              <Button
-                variant="outlined"
-                component="label"
-                sx={{
-                  borderRadius: 2,
-                  textTransform: 'none',
-                  fontWeight: 'bold',
-                }}
-              >
-                Pasirinkti nuotraukas
-                <input
-                  type="file"
-                  multiple
-                  hidden
-                  accept="image/*"
-                  onChange={handleImageChange}
-                />
-              </Button>
-
-              {room.pictures.length > 0 && (
-                <Box sx={{ mt: 2, display: 'flex', flexWrap: 'wrap', gap: 2 }}>
-                  {room.pictures.map((file, index) => (
-                    <Box
-                      key={index}
-                      sx={{
-                        width: 100,
-                        height: 100,
-                        borderRadius: 2,
-                        overflow: 'hidden',
-                        boxShadow: '0 1px 5px rgba(0,0,0,0.2)',
-                      }}
-                    >
-                      <img
-                        src={URL.createObjectURL(file)}
-                        alt={`Nuotrauka ${index + 1}`}
-                        width="100%"
-                        height="100%"
-                        style={{ objectFit: 'cover' }}
-                      />
-                    </Box>
-                  ))}
-                </Box>
-              )}
-            </Box>
 
             <Button
               type="submit"
               variant="contained"
-              sx={{
-                bgcolor: '#54923D',
-                fontWeight: 'bold',
-                textTransform: 'none',
-                borderRadius: 2,
-                py: 1.2,
-                '&:hover': { bgcolor: '#437531' },
-              }}
+              disabled={loading}
+              sx={{ bgcolor: '#54923D', mt: 2 }}
             >
-              Sukurti Kambarį
+              {loading ? 'Kuriama...' : 'Sukurti kambarį'}
             </Button>
           </Paper>
         </Container>

@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import {
   Box,
   Typography,
@@ -9,121 +9,124 @@ import {
   MenuItem,
 } from '@mui/material';
 import NavBar from '../Components/NavBar';
-import { Event } from '../types'; 
+import axiosInstance from '../config/axiosConfig';
+
+type Hotel = {
+  id: number;
+  name: string;
+};
 
 export default function NewEventPage() {
-  const [event, setEvent] = useState<Event>({
-    hotel: '',
-    startDate: '',
-    endDate: '',
+  const [hotels, setHotels] = useState<{ id: number; name: string }[]>([]);
+  const [loading, setLoading] = useState(false);
+
+  const [event, setEvent] = useState({
+    hotelId: '',
+    title: '',
     description: '',
+    startAt: '',
+    endAt: '',
   });
 
-  const hotels = ['Viešbutis 1', 'Viešbutis 2', 'Viešbutis 3'];
+  useEffect(() => {
+    axiosInstance.get<Hotel[]>('/admin/hotels')
+      .then(res => setHotels(res.data))
+      .catch(err => console.error(err));
+  }, []);
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    console.log(event);
-    alert('🎉 Renginys sukurtas (placeholderis)');
+  const handleChange = (field: string, value: string) => {
+    setEvent(prev => ({ ...prev, [field]: value }));
   };
 
-  const handleChange = (field: keyof Event, value: string) => {
-    setEvent((prev) => ({ ...prev, [field]: value }));
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setLoading(true);
+
+    try {
+      await axiosInstance.post('/admin/events', {
+        hotelId: Number(event.hotelId),
+        title: event.title,
+        description: event.description,
+        startAt: event.startAt,
+        endAt: event.endAt,
+      });
+
+      alert('🎉 Renginys sėkmingai sukurtas');
+      setEvent({
+        hotelId: '',
+        title: '',
+        description: '',
+        startAt: '',
+        endAt: '',
+      });
+    } catch (err) {
+      console.error(err);
+      alert(' Nepavyko sukurti renginio');
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
     <>
       <NavBar />
-
       <Box sx={{ bgcolor: '#f2f2f2', minHeight: '100vh', py: 6 }}>
         <Container maxWidth="sm">
-          <Typography
-            variant="h4"
-            sx={{
-              textAlign: 'center',
-              fontWeight: 'bold',
-              color: '#333',
-              mb: 5,
-            }}
-          >
+          <Typography variant="h4" sx={{ textAlign: 'center', mb: 4 }}>
             Naujo Renginio Kūrimas
           </Typography>
 
-          <Paper
-            component="form"
-            onSubmit={handleSubmit}
-            sx={{
-              p: 4,
-              borderRadius: 3,
-              boxShadow: '0 2px 10px rgba(0,0,0,0.1)',
-              bgcolor: 'white',
-              display: 'flex',
-              flexDirection: 'column',
-              gap: 3,
-            }}
-          >
+          <Paper component="form" onSubmit={handleSubmit} sx={{ p: 4, display: 'flex', flexDirection: 'column', gap: 2 }}>
             <TextField
               select
-              label="Pasirinkite viešbutį"
-              value={event.hotel}
-              onChange={(e) => handleChange('hotel', e.target.value)}
-              fullWidth
+              label="Viešbutis"
               required
-              sx={{ bgcolor: '#f9f9f9', borderRadius: 1 }}
+              value={event.hotelId}
+              onChange={(e) => handleChange('hotelId', e.target.value)}
             >
-              {hotels.map((h) => (
-                <MenuItem key={h} value={h}>
-                  {h}
+              {hotels.map(h => (
+                <MenuItem key={h.id} value={h.id}>
+                  {h.name}
                 </MenuItem>
               ))}
             </TextField>
 
             <TextField
-              label="Pradžios data ir laikas"
-              type="datetime-local"
-              value={event.startDate}
-              onChange={(e) => handleChange('startDate', e.target.value)}
-              fullWidth
-              InputLabelProps={{ shrink: true }}
+              label="Renginio pavadinimas"
               required
-              sx={{ bgcolor: '#f9f9f9', borderRadius: 1 }}
+              value={event.title}
+              onChange={(e) => handleChange('title', e.target.value)}
             />
 
             <TextField
-              label="Pabaigos data ir laikas"
-              type="datetime-local"
-              value={event.endDate}
-              onChange={(e) => handleChange('endDate', e.target.value)}
-              fullWidth
-              InputLabelProps={{ shrink: true }}
-              required
-              sx={{ bgcolor: '#f9f9f9', borderRadius: 1 }}
-            />
+  type="datetime-local"
+  label="Pradžia"
+  value={event.startAt}
+  InputLabelProps={{ shrink: true }}
+  required
+  onChange={(e) => handleChange('startAt', e.target.value)}
+/>
+
+<TextField
+  type="datetime-local"
+  label="Pabaiga"
+  value={event.endAt}
+  InputLabelProps={{ shrink: true }}
+  required
+  onChange={(e) => handleChange('endAt', e.target.value)}
+/>
+
 
             <TextField
-              label="Renginio aprašymas"
               multiline
-              rows={4}
-              value={event.description}
-              onChange={(e) => handleChange('description', e.target.value)}
-              fullWidth
+              rows={3}
+              label="Aprašymas"
               required
-              sx={{ bgcolor: '#f9f9f9', borderRadius: 1 }}
+              onChange={(e) => handleChange('description', e.target.value)}
             />
 
-            <Button
-              type="submit"
-              variant="contained"
-              sx={{
-                bgcolor: '#54923D',
-                fontWeight: 'bold',
-                textTransform: 'none',
-                borderRadius: 2,
-                py: 1.2,
-                '&:hover': { bgcolor: '#437531' },
-              }}
-            >
-              Sukurti Renginį
+            <Button type="submit" variant="contained" disabled={loading}>
+              {loading ? 'Kuriama...' : 'Sukurti renginį'}
             </Button>
           </Paper>
         </Container>

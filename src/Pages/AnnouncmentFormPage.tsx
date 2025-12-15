@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import {
   Box,
   Typography,
@@ -15,40 +15,54 @@ import {
   ListItemText,
 } from '@mui/material';
 import NavBar from '../Components/NavBar';
-import { Announcement } from '../types'; 
+import axiosInstance from '../config/axiosConfig';
+import { CreateAnnouncementRequest, UserOption } from '../types/types';
 
 export default function AnnouncementFormPage() {
-  const [announcement, setAnnouncement] = useState<Announcement>({
-    announcementType: '' as 'news' | 'inbox',
-    recipients: [],
+  const [users, setUsers] = useState<UserOption[]>([]);
+  const [loading, setLoading] = useState(false);
+
+  const [form, setForm] = useState<CreateAnnouncementRequest>({
+    type: 'NEWS',
+    title: '',
     message: '',
+    recipientUserIds: [],
+    visibleUntil: '',
   });
 
-  // Placeholder user list
-  const users = ['vartotojas1', 'vartotojas2', 'vartotojas3', 'vartotojas4'];
+  /* =========================
+     Fetch users (ACTIVE only)
+     ========================= */
+  useEffect(() => {
+    axiosInstance
+      .get<UserOption[]>('/admin/users?status=ACTIVE')
+      .then(res => setUsers(res.data))
+      .catch(err => console.error('Failed to fetch users', err));
+  }, []);
 
-  // Handlers
-  const handleSubmit = (e: React.FormEvent) => {
+  /* =========================
+     Handlers
+     ========================= */
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setLoading(true);
 
-    console.log(announcement);
-    alert('Pranešimas sėkmingai sukurtas (placeholderis)');
-  };
-
-  const handleTypeChange = (value: string) => {
-    setAnnouncement((prev) => ({ ...prev, announcementType: value as 'news' | 'inbox' }));
-  };
-
-  const handleUserChange = (event: any) => {
-    const { value } = event.target;
-    setAnnouncement((prev) => ({
-      ...prev,
-      recipients: typeof value === 'string' ? value.split(',') : value,
-    }));
-  };
-
-  const handleMessageChange = (value: string) => {
-    setAnnouncement((prev) => ({ ...prev, message: value }));
+    try {
+      await axiosInstance.post('/admin/announcements', form);
+      alert('✅ Pranešimas sukurtas');
+      setForm({
+        type: 'NEWS',
+        title: '',
+        message: '',
+        recipientUserIds: [],
+        visibleUntil: '',
+      });
+    } catch (err) {
+      console.error(err);
+      alert('❌ Nepavyko sukurti pranešimo');
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -57,92 +71,102 @@ export default function AnnouncementFormPage() {
 
       <Box sx={{ bgcolor: '#f2f2f2', minHeight: '100vh', py: 6 }}>
         <Container maxWidth="sm">
-          <Typography
-            variant="h4"
-            sx={{
-              textAlign: 'center',
-              fontWeight: 'bold',
-              color: '#333',
-              mb: 5,
-            }}
-          >
+          <Typography variant="h4" textAlign="center" mb={4}>
             Naujo Pranešimo Kūrimas
           </Typography>
 
           <Paper
             component="form"
             onSubmit={handleSubmit}
-            sx={{
-              p: 4,
-              borderRadius: 3,
-              boxShadow: '0 2px 10px rgba(0,0,0,0.1)',
-              bgcolor: 'white',
-              display: 'flex',
-              flexDirection: 'column',
-              gap: 3,
-            }}
+            sx={{ p: 4, display: 'flex', flexDirection: 'column', gap: 3 }}
           >
-            {/* Announcement Type */}
+            {/* Type */}
             <TextField
               select
               label="Pranešimo tipas"
-              value={announcement.announcementType}
-              onChange={(e) => handleTypeChange(e.target.value)}
-              fullWidth
+              value={form.type}
+              onChange={(e) =>
+                setForm(prev => ({
+                  ...prev,
+                  type: e.target.value as 'NEWS' | 'INBOX',
+                  recipientUserIds: [],
+                }))
+              }
               required
-              sx={{ bgcolor: '#f9f9f9', borderRadius: 1 }}
             >
-              <MenuItem value="news">Naujiena (rodoma sistemoje)</MenuItem>
-              <MenuItem value="inbox">Žinutė vartotojams</MenuItem>
+              <MenuItem value="NEWS">Naujiena (visiems)</MenuItem>
+              <MenuItem value="INBOX">Žinutė vartotojams</MenuItem>
             </TextField>
 
-            {/* Conditional User Selection */}
-            {announcement.announcementType === 'inbox' && (
+            {/* Title */}
+            <TextField
+              label="Pavadinimas"
+              value={form.title}
+              onChange={(e) => setForm(prev => ({ ...prev, title: e.target.value }))}
+              required
+            />
+
+            {/* Recipients */}
+            {form.type === 'INBOX' && (
               <FormControl fullWidth>
-                <InputLabel>Pasirinkite vartotojus</InputLabel>
+                <InputLabel>Gavėjai</InputLabel>
                 <Select
                   multiple
-                  value={announcement.recipients}
-                  onChange={handleUserChange}
-                  input={<OutlinedInput label="Pasirinkite vartotojus" />}
-                  renderValue={(selected) => selected.join(', ')}
-                  sx={{ bgcolor: '#f9f9f9', borderRadius: 1 }}
+                  value={form.recipientUserIds}
+                  onChange={(e) =>
+                    setForm(prev => ({
+                      ...prev,
+                      recipientUserIds: e.target.value as string[],
+                    }))
+                  }
+                  input={<OutlinedInput label="Gavėjai" />}
+                  renderValue={(selected) =>
+                    users
+                      .filter(u => selected.includes(u.id))
+                      .map(u => u.username)
+                      .join(', ')
+                  }
                 >
-                  {users.map((user) => (
-                    <MenuItem key={user} value={user}>
-                      <Checkbox checked={announcement.recipients.includes(user)} />
-                      <ListItemText primary={user} />
+                  {users.map(user => (
+                    <MenuItem key={user.id} value={user.id}>
+                      <Checkbox checked={form.recipientUserIds.includes(user.id)} />
+                      <ListItemText
+                        primary={user.username}
+                        secondary={user.email}
+                      />
                     </MenuItem>
                   ))}
                 </Select>
               </FormControl>
             )}
 
-            {/* Message Input */}
+            {/* Message */}
             <TextField
-              label="Pranešimo tekstas"
+              label="Tekstas"
               multiline
               rows={5}
-              value={announcement.message}
-              onChange={(e) => handleMessageChange(e.target.value)}
-              fullWidth
+              value={form.message}
+              onChange={(e) => setForm(prev => ({ ...prev, message: e.target.value }))}
               required
-              sx={{ bgcolor: '#f9f9f9', borderRadius: 1 }}
             />
 
-            <Button
-              type="submit"
-              variant="contained"
-              sx={{
-                bgcolor: '#54923D',
-                fontWeight: 'bold',
-                textTransform: 'none',
-                borderRadius: 2,
-                py: 1.2,
-                '&:hover': { bgcolor: '#437531' },
-              }}
-            >
-              Sukurti Pranešimą
+            <TextField
+  type="date"
+  label="Rodyti iki"
+  value={form.visibleUntil}
+  InputLabelProps={{ shrink: true }}
+  required
+  onChange={(e) =>
+    setForm(prev => ({
+      ...prev,
+      visibleUntil: e.target.value
+    }))
+  }
+/>
+
+
+            <Button type="submit" variant="contained" disabled={loading}>
+              {loading ? 'Siunčiama...' : 'Sukurti pranešimą'}
             </Button>
           </Paper>
         </Container>
