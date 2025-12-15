@@ -19,6 +19,7 @@ import type Room from '../types/Room';
 import type { RoomDetails } from '../types';
 import Detail from '../Components/RoomDetailsComponent';
 import { getRoomById } from '../api/roomApi';
+import AvailableTimeSlotsDialog from '../Components/AvailableTimeSlotsDialog';
 
 export default function RoomDetailsPage() {
   const { roomId } = useParams();
@@ -27,6 +28,7 @@ export default function RoomDetailsPage() {
   const [room, setRoom] = useState<(Room & Partial<RoomDetails>) | null>(location.state?.room ?? null);
   const [loading, setLoading] = useState(!location.state?.room);
   const [error, setError] = useState<string | null>(null);
+  const [dialogOpen, setDialogOpen] = useState(false);
 
   useEffect(() => {
     if (location.state?.room || !roomId) {
@@ -57,7 +59,6 @@ export default function RoomDetailsPage() {
     fetchRoom();
   }, [roomId, location.state?.room]);
 
-  console.log('Room details:', room);
   return (
     <>
       <NavBar />
@@ -182,9 +183,7 @@ export default function RoomDetailsPage() {
                       px: 4,
                       '&:hover': { bgcolor: '#2e2abf' }
                     }}
-                    onClick={() =>
-                      navigate(`/rooms/${room?.id ?? roomId}/reservation-times`)
-                    }
+                    onClick={() => setDialogOpen(true)}
                   >
                     Rezervuoti
                   </Button>
@@ -199,6 +198,14 @@ export default function RoomDetailsPage() {
                 </Stack>
               </Box>
             </>
+          )}
+
+          {room && (
+            <AvailableTimeSlotsDialog
+              open={dialogOpen}
+              onClose={() => setDialogOpen(false)}
+              room={room}
+            />
           )}
         </Container>
       </Box>
