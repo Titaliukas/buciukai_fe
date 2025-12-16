@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import {
   Checkbox,
   IconButton,
@@ -6,6 +6,9 @@ import {
   Box,
   Paper,
   Button,
+  CircularProgress,
+  Snackbar,
+  Alert,
 } from '@mui/material';
 import {
   format,
@@ -24,10 +27,49 @@ import { startOfDay } from 'date-fns';
 import { lt } from 'date-fns/locale';
 import ArrowBackIosNewIcon from '@mui/icons-material/ArrowBackIosNew';
 import ArrowForwardIosIcon from '@mui/icons-material/ArrowForwardIos';
+import { getAvailability, upsertAvailability, deleteAvailability, type AvailabilitySlotDTO } from '../api/availabilityApi';
 
-export default function TimeSlotsCalendar() {
+interface Props {
+  roomId: string;
+}
+
+export default function TimeSlotsCalendar({ roomId }: Props) {
   const [month, setMonth] = useState(new Date());
-  const [selected, setSelected] = useState(new Set());
+  const [selected, setSelected] = useState(new Set<string>());
+  const [loading, setLoading] = useState(true);
+  const [saving, setSaving] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [successMessage, setSuccessMessage] = useState<string | null>(null);
+
+  // Fetch existing availability on mount
+  useEffect(() => {
+    const fetchAvailability = async () => {
+      try {
+        setLoading(true);
+        const data = await getAvailability(roomId);
+        // Convert availability slots to selected dates
+        const selectedDates = new Set<string>();
+        data.availabilitySlots.forEach((slot) => {
+          const start = new Date(slot.startDate);
+          const end = new Date(slot.endDate);
+          const current = new Date(start);
+          while (current <= end) {
+            selectedDates.add(format(current, 'yyyy-MM-dd'));
+            current.setDate(current.getDate() + 1);
+          }
+        });
+        setSelected(selectedDates);
+        setError(null);
+      } catch (err) {
+        console.error('Failed to fetch availability:', err);
+        setError('Nepavyko užkrauti laiko duomenų.');
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchAvailability();
+  }, [roomId]);
 
   const monthStart = startOfMonth(month);
   const monthEnd = endOfMonth(month);
@@ -57,9 +99,113 @@ export default function TimeSlotsCalendar() {
     const enabledDays = days.filter((d) => isSameMonth(d, month) && !isBefore(startOfDay(d), todayStart));
     const enabledKeys = enabledDays.map((d) => format(d, 'yyyy-MM-dd'));
     const allSelected = enabledKeys.every((k) => selected.has(k));
-    if (allSelected) setSelected(new Set());
-    else setSelected(new Set(enabledKeys));
+    
+    setSelected((prev) => {
+      const newSet = new Set(prev);
+      if (allSelected) {
+        // Deselect only current month's enabled days
+        enabledKeys.forEach((k) => newSet.delete(k));
+      } else {
+        // Add current month's enabled days to existing selections
+        enabledKeys.forEach((k) => newSet.add(k));
+      }
+      return newSet;
+    });
   };
+
+  const handleClear = async () => {
+    try {
+      setSaving(true);
+      setError(null);
+      await deleteAvailability(roomId);
+      setSelected(new Set());
+      setSuccessMessage('Laiko tvarkaraštis išvalytas!');
+    } catch (err) {
+      console.error('Failed to delete availability:', err);
+      setError('Nepavyko ištrinti laiko tvarkaraščio.');
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  const handleSave = async () => {
+    try {
+      setSaving(true);
+      setError(null);
+
+      // Convert selected dates to sorted array
+      const sortedDates = Array.from(selected).sort();
+      
+      if (sortedDates.length === 0) {
+        setError('Pasirinkite bent vieną dieną.');
+        setSaving(false);
+        return;
+      }
+
+      // Build continuous availability slots
+      const availabilitySlots: AvailabilitySlotDTO[] = [];
+      let currentStart = sortedDates[0];
+      let currentEnd = sortedDates[0];
+
+      for (let i = 1; i < sortedDates.length; i++) {
+        const prevDate = new Date(sortedDates[i - 1]);
+        const currDate = new Date(sortedDates[i]);
+        const dayDiff = (currDate.getTime() - prevDate.getTime()) / (1000 * 60 * 60 * 24);
+
+        if (dayDiff === 1) {
+          // Continuous
+          currentEnd = sortedDates[i];
+        } else {
+          // Gap found - save current slot
+          availabilitySlots.push({
+            startDate: currentStart,
+            endDate: currentEnd,
+          });
+          currentStart = sortedDates[i];
+          currentEnd = sortedDates[i];
+        }
+      }
+      // Push the last slot
+      availabilitySlots.push({
+        startDate: currentStart,
+        endDate: currentEnd,
+      });
+
+      // Build exclusions (gaps between slots)
+      const exclusions: AvailabilitySlotDTO[] = [];
+      for (let i = 0; i < availabilitySlots.length - 1; i++) {
+        const currentSlotEnd = new Date(availabilitySlots[i].endDate);
+        const nextSlotStart = new Date(availabilitySlots[i + 1].startDate);
+        const exclusionStart = new Date(currentSlotEnd);
+        exclusionStart.setDate(exclusionStart.getDate() + 1);
+        const exclusionEnd = new Date(nextSlotStart);
+        exclusionEnd.setDate(exclusionEnd.getDate() - 1);
+
+        if (exclusionStart <= exclusionEnd) {
+          exclusions.push({
+            startDate: format(exclusionStart, 'yyyy-MM-dd'),
+            endDate: format(exclusionEnd, 'yyyy-MM-dd'),
+          });
+        }
+      }
+
+      await upsertAvailability(roomId, { availabilitySlots, exclusions });
+      setSuccessMessage('Laiko tvarkaraštis sėkmingai išsaugotas!');
+    } catch (err) {
+      console.error('Failed to save availability:', err);
+      setError('Nepavyko išsaugoti laiko tvarkaraščio.');
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  if (loading) {
+    return (
+      <Box sx={{ display: 'flex', justifyContent: 'center', py: 8 }}>
+        <CircularProgress />
+      </Box>
+    );
+  }
 
   return (
     <Box sx={{ p: 3 }}>
@@ -125,12 +271,35 @@ export default function TimeSlotsCalendar() {
           Pasirinkti viską
         </Button>
         <Box sx={{ display: 'flex', gap: 2 }}>
-          <Button variant="outlined" onClick={() => setSelected(new Set())}>Išvalyti</Button>
-          <Button variant="contained" color="primary" onClick={() => {}}>
-            Išsaugoti
+          <Button variant="outlined" onClick={handleClear} disabled={saving}>
+            {saving ? 'Ištrinami laikai...' : 'Ištrinti laikus'}
+          </Button>
+          <Button 
+            variant="contained" 
+            color="primary" 
+            onClick={handleSave}
+            disabled={saving || selected.size === 0}
+          >
+            {saving ? 'Išsaugoma...' : 'Išsaugoti'}
           </Button>
         </Box>
       </Box>
+
+      {error && (
+        <Snackbar open={Boolean(error)} autoHideDuration={6000} onClose={() => setError(null)}>
+          <Alert severity="error" onClose={() => setError(null)}>
+            {error}
+          </Alert>
+        </Snackbar>
+      )}
+
+      {successMessage && (
+        <Snackbar open={Boolean(successMessage)} autoHideDuration={3000} onClose={() => setSuccessMessage(null)}>
+          <Alert severity="success" onClose={() => setSuccessMessage(null)}>
+            {successMessage}
+          </Alert>
+        </Snackbar>
+      )}
     </Box>
   );
 }

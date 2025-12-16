@@ -54,7 +54,7 @@ export default function HotelCard({ hotel }: HotelCardProps) {
 						mt: 2,
 						'&:hover': { bgcolor: '#2e2abf' },
 					}}
-					onClick={() => navigate(`/hotel/${hotel.id}/rooms`)}
+					onClick={() => navigate(`/hotel/${hotel.id}/rooms`, { state: { hotelName: hotel.name } })}
 				>
 					Peržiūrėti
 				</Button>
