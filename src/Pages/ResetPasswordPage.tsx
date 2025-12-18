@@ -18,14 +18,29 @@ export default function ResetPasswordPage() {
 	const [snackbarErrorOpen, setSnackbarErrorOpen] = useState(false);
 	const [snackbarErrorMessage, setSnackbarErrorMessage] = useState('');
 
+	const [emailError, setEmailError] = useState('');
+
+	const validateEmail = (value: string) => {
+		if (!value) return 'E. paštas yra privalomas';
+		const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+		if (!emailRegex.test(value)) return 'Neteisingas e. pašto formatas';
+		return '';
+	};
+
 	const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
 		e.preventDefault(); // prevents page reload
 		setIsLoading(true);
 
 		try {
-			await sendPasswordResetEmail(auth, email);
-			setSnackbarSuccessMessage('Atkūrimo laiškas nusiųstas!');
-			setSnackbarSuccessOpen(true);
+			const emailErr = validateEmail(email);
+
+			setEmailError(emailErr);
+
+			if (!emailErr) {
+				await sendPasswordResetEmail(auth, email);
+				setSnackbarSuccessMessage('Atkūrimo laiškas nusiųstas!');
+				setSnackbarSuccessOpen(true);
+			}
 		} catch (error) {
 			console.log(error);
 			setSnackbarErrorMessage('Nepavyko nusiųsti laiško!');
@@ -87,13 +102,18 @@ export default function ResetPasswordPage() {
 						<Box
 							sx={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-start', width: '100%', maxWidth: 400 }}
 						>
-							<Typography sx={{ color: 'black', mb: 0.5 }}>E. Paštas</Typography>
+							<Typography sx={{ color: 'black', mb: 0.5 }}>E. Paštas*</Typography>
 							<TextField
 								variant='outlined'
 								fullWidth
 								placeholder='E. paštas'
 								value={email}
-								onChange={(e) => SetEmail(e.target.value)}
+								onChange={(e) => {
+									SetEmail(e.target.value);
+									setEmailError(validateEmail(e.target.value));
+								}}
+								error={Boolean(emailError)}
+								helperText={emailError}
 								sx={{
 									bgcolor: '#eaeaea',
 									borderRadius: 1,

@@ -27,6 +27,7 @@ import { ProtectedRoute } from './Components/ProtectedRoute';
 import { AuthContextProvider } from './context/authContext';
 import { LocalizationProvider } from '@mui/x-date-pickers';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
+import RoomDetailsPage from './Pages/RoomDetailsPage.tsx';
 
 function App() {
 	return (
@@ -53,6 +54,7 @@ function App() {
 							<Route path={ROUTES.ReservationsPage} element={<ReservationsPage />} />
 							<Route path={ROUTES.ReservationTimesPage} element={<ReservationTimesPage />} />
 							<Route path={ROUTES.InboxPage} element={<InboxPage />} />
+							<Route path={ROUTES.RoomDetailsPage} element={<RoomDetailsPage />} />
 						</Route>
 
 						<Route path={ROUTES.SignInPage} element={<SignInPage />} />

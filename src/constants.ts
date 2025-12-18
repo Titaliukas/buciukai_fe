@@ -21,4 +21,5 @@ export const ROUTES = {
 	ReservationsPage: '/user/:userId/reservations',
 	ReservationTimesPage: '/rooms/:roomId/reservation-times',
 	InboxPage: '/inbox',
+	RoomDetailsPage: '/rooms/:roomId',
 };
