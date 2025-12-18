@@ -22,6 +22,7 @@ import ReservationStatusReportPage from './Pages/ReservationStatusReportPage';
 import RoomsListPage from './Pages/RoomsListPage';
 import ReservationsPage from './Pages/ReservationsPage';
 import ReservationTimesPage from './Pages/ReservationTimesPage';
+import InboxPage from './Pages/InboxPage';
 import { ProtectedRoute } from './Components/ProtectedRoute';
 import { AuthContextProvider } from './context/authContext';
 import { LocalizationProvider } from '@mui/x-date-pickers';
@@ -52,6 +53,7 @@ function App() {
 							<Route path={ROUTES.RoomsListPage} element={<RoomsListPage />} />
 							<Route path={ROUTES.ReservationsPage} element={<ReservationsPage />} />
 							<Route path={ROUTES.ReservationTimesPage} element={<ReservationTimesPage />} />
+							<Route path={ROUTES.InboxPage} element={<InboxPage />} />
 							<Route path={ROUTES.RoomDetailsPage} element={<RoomDetailsPage />} />
 						</Route>
 

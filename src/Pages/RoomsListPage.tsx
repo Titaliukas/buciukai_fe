@@ -5,6 +5,8 @@ import { useParams, useLocation } from 'react-router-dom';
 import { useEffect, useState } from 'react';
 import { getRoomsByHotelId } from '../api/roomApi';
 import type Room from '../types/Room';
+import type HotelEvent from '../types/HotelEvent';
+import axiosInstance from '../config/axiosConfig';
 
 export default function RoomsListPage() {
   const { hotelId } = useParams<{ hotelId: string }>();
@@ -13,6 +15,18 @@ export default function RoomsListPage() {
   const [hotelName, setHotelName] = useState<string>(location.state?.hotelName || '');
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [events, setEvents] = useState<HotelEvent[]>([]);
+
+
+  useEffect(() => {
+  if (!hotelId) return;
+
+  axiosInstance
+    .get<HotelEvent[]>(`/events/hotel/${hotelId}`)
+    .then(res => setEvents(res.data))
+    .catch(err => console.error('Failed to fetch events', err));
+  }, [hotelId]);
+
 
   useEffect(() => {
     const fetchRooms = async () => {
@@ -44,6 +58,46 @@ export default function RoomsListPage() {
   return (
     <>
       <NavBar />
+      {events.length > 0 && (
+  <Box sx={{ mb: 4 }}>
+    <Typography
+      variant="h6"
+      sx={{ fontWeight: 'bold', mb: 2 }}
+    >
+      📅 Viešbučio renginiai
+    </Typography>
+
+    {events.map(ev => (
+      <Box
+        key={ev.id}
+        sx={{
+          bgcolor: 'white',
+          p: 2,
+          mb: 2,
+          borderLeft: '4px solid #54923D',
+          borderRadius: 1,
+        }}
+      >
+        <Typography variant="subtitle1" fontWeight="bold">
+          {ev.title}
+        </Typography>
+
+        <Typography sx={{ mt: 0.5 }}>
+          {ev.description}
+        </Typography>
+
+        <Typography
+          variant="caption"
+          color="text.secondary"
+          sx={{ display: 'block', mt: 1 }}
+        >
+          {new Date(ev.startAt).toLocaleString()} –{' '}
+          {new Date(ev.endAt).toLocaleString()}
+        </Typography>
+      </Box>
+    ))}
+  </Box>
+)}
 
       <Box sx={{ bgcolor: '#f2f2f2', minHeight: '100vh', pb: 4, pt: 0.01 }}>
 

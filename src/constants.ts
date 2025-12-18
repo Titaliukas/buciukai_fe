@@ -20,5 +20,6 @@ export const ROUTES = {
 	RoomsListPage: '/hotel/:hotelId/rooms',
 	ReservationsPage: '/user/:userId/reservations',
 	ReservationTimesPage: '/rooms/:roomId/reservation-times',
+	InboxPage: '/inbox',
 	RoomDetailsPage: '/rooms/:roomId',
 };
