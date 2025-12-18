@@ -41,8 +41,8 @@ export default function HotelCreationPage() {
       await axiosInstance.post('/admin/hotels/create', hotel);
 
       alert('Viešbutis sėkmingai sukurtas');
-      navigate('/admin/hotels');
-
+      navigate('/admin');
+      return;
     } catch (err) {
       console.error(err);
       alert('Nepavyko sukurti viešbučio');

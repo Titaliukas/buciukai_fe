@@ -66,30 +66,32 @@ export default function RoomCreationPage() {
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setLoading(true);
+  e.preventDefault();
+  setLoading(true);
 
-    try {
-      await axiosInstance.post('/admin/rooms', {
-        hotelId: Number(room.hotelId),
-        roomNumber: Number(room.roomNumber),
-        price: Number(room.price),
-        floorNumber: Number(room.floorNumber),
-        sizeM2: Number(room.sizeM2),
-        description: room.description,
-        roomTypeId: Number(room.roomTypeId),
-        bedTypeId: Number(room.bedTypeId),
-      });
+  try {
+    await axiosInstance.post('/admin/rooms', {
+      hotelId: Number(room.hotelId),
+      roomNumber: Number(room.roomNumber),
+      price: Number(room.price),
+      floorNumber: Number(room.floorNumber),
+      sizeM2: Number(room.sizeM2),
+      description: room.description,
+      roomTypeId: Number(room.roomTypeId),
+      bedTypeId: Number(room.bedTypeId),
+    });
 
-      alert('✅ Kambarys sėkmingai sukurtas');
-      navigate('/admin/rooms');
-    } catch (err) {
-      console.error(err);
-      alert('❌ Nepavyko sukurti kambario');
-    } finally {
-      setLoading(false);
-    }
-  };
+    alert('✅ Kambarys sėkmingai sukurtas');
+    navigate('/admin');
+    return; 
+  } catch (err) {
+    console.error(err);
+    alert('❌ Nepavyko sukurti kambario');
+  } finally {
+    setLoading(false);
+  }
+};
+
 
   if (fetching) {
     return (

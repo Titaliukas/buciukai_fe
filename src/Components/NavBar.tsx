@@ -1,6 +1,7 @@
 import { AppBar, Container, Toolbar, Typography} from '@mui/material';
 import AvatarButton from './AvatarButton';
 import { useNavigate } from 'react-router-dom';
+import InboxButton from './InboxButton';
 
 export default function NavBar() {
 	const navigate = useNavigate();
@@ -17,6 +18,7 @@ export default function NavBar() {
 					>
 						Bučiukai
 					</Typography>
+					<InboxButton/>
 					<AvatarButton />
 				</Toolbar>
 			</Container>

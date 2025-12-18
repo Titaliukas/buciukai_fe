@@ -12,6 +12,7 @@ import {
   Container,
   TextField,
   CircularProgress,
+  MenuItem,
 } from '@mui/material';
 import NavBar from '../Components/NavBar';
 import axiosInstance from '../config/axiosConfig';
@@ -26,6 +27,7 @@ interface AdminUser {
   birthdate: string;
   blocked: boolean;
   firebaseUid: string;
+  role: 'CLIENT' | 'STAFF' | 'ADMIN';
 }
 
 export default function ClientManagementPage() {
@@ -87,6 +89,30 @@ export default function ClientManagementPage() {
     }
   };
 
+  const changeRole = async (u: AdminUser, newRole: AdminUser['role']) => {
+  if (u.role === newRole) return;
+
+
+  const confirmed = window.confirm(
+    `Ar tikrai norite pakeisti rolę į ${newRole}?`
+  );
+  if (!confirmed) return;
+
+  try {
+    await axiosInstance.patch(`/admin/users/${u.id}/role`, {
+      role:
+        newRole === 'CLIENT' ? 1 :
+        newRole === 'STAFF' ? 2 :
+        3,
+    });
+
+    fetchUsers();
+  } catch {
+    alert('Nepavyko pakeisti rolės');
+  }
+};
+
+
   if (isLoading) {
     return (
       <Box sx={{ display: 'flex', justifyContent: 'center', mt: 10 }}>
@@ -130,6 +156,7 @@ export default function ClientManagementPage() {
                   <TableCell sx={{ color: 'white' }}>Pavardė</TableCell>
                   <TableCell sx={{ color: 'white' }}>El. paštas</TableCell>
                   <TableCell sx={{ color: 'white' }}>Miestas</TableCell>
+                  <TableCell sx={{ color: 'white' }}>Rolė</TableCell>
                   <TableCell sx={{ color: 'white' }}>Veiksmai</TableCell>
                 </TableRow>
               </TableHead>
@@ -140,7 +167,21 @@ export default function ClientManagementPage() {
                     <TableCell>{u.name}</TableCell>
                     <TableCell>{u.surname}</TableCell>
                     <TableCell>{u.email}</TableCell>
-                    <TableCell>{u.city}</TableCell>
+                    <TableCell>
+  <TextField
+    select
+    size="small"
+    value={u.role}
+    onChange={(e) => {
+      changeRole(u, e.target.value as 'CLIENT' | 'STAFF' | 'ADMIN');
+    }}
+    sx={{ minWidth: 120 }}
+  >
+    <MenuItem value="CLIENT">CLIENT</MenuItem>
+    <MenuItem value="STAFF">STAFF</MenuItem>
+    <MenuItem value="ADMIN">ADMIN</MenuItem>
+  </TextField>
+</TableCell>
                     <TableCell>
                       <Button
                         color="error"
