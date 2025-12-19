@@ -1,7 +1,7 @@
 enum Roles {
-	Client = 1,
-	Staff = 2,
-	Admin = 3,
+	Client = 'CLIENT',
+	Staff = 'STAFF',
+	Admin = 'ADMIN',
 }
 
 export default Roles;

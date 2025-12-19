@@ -22,4 +22,5 @@ export const ROUTES = {
 	ReservationTimesPage: '/rooms/:roomId/reservation-times',
 	InboxPage: '/inbox',
 	RoomDetailsPage: '/rooms/:roomId',
+	SystemoffPage: '/system-off',
 };

@@ -6,6 +6,9 @@ import { ROUTES } from '../constants';
 import ConfirmModal from './ConfirmModal';
 import { signOut } from 'firebase/auth';
 import { auth } from '../config/FirebaseConfig';
+import { useContext } from 'react';
+import AuthContext from '../context/authContext';
+import Roles from '../enum/Roles';
 
 export default function AvatarButton() {
 	const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
@@ -28,7 +31,8 @@ export default function AvatarButton() {
 			console.error('Logout failed:', error);
 		}
 	};
-
+	const { userInfo } = useContext(AuthContext);
+	const isAdmin = userInfo?.role === Roles.Admin;
 	const [openModal, setOpenModal] = useState(false);
 	const [confirmedModal, setConfirmedModal] = useState<boolean | null>(null);
 
@@ -68,7 +72,11 @@ export default function AvatarButton() {
 					<>
 						<MenuItem onClick={() => navigate(ROUTES.ProfilePage)}>Profilio nustatymai</MenuItem>
 						<MenuItem onClick={() => navigate(ROUTES.ReservationsPage)}>Mano rezervacijos</MenuItem>
-						<MenuItem onClick={() => navigate(ROUTES.AdminPage)}>Administravimas</MenuItem>
+						{isAdmin && (
+						<MenuItem onClick={() => navigate(ROUTES.AdminPage)}>
+							Administravimas
+						</MenuItem>
+						)}
 						<Divider />
 						<MenuItem onClick={handleOpenModal} sx={{ color: 'red' }}>
 							Atsijungti

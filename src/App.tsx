@@ -23,6 +23,7 @@ import RoomsListPage from './Pages/RoomsListPage';
 import ReservationsPage from './Pages/ReservationsPage';
 import ReservationTimesPage from './Pages/ReservationTimesPage';
 import InboxPage from './Pages/InboxPage';
+import SystemOffPage from './Pages/SystemOffPage';
 import { ProtectedRoute } from './Components/ProtectedRoute';
 import { AuthContextProvider } from './context/authContext';
 import { LocalizationProvider } from '@mui/x-date-pickers';
@@ -61,6 +62,7 @@ function App() {
 						<Route path={ROUTES.SignUpPage} element={<SignUpPage />} />
 						<Route path={ROUTES.ResetPasswordPage} element={<ResetPasswordPage />} />
 						<Route path={ROUTES.NewPasswordPage} element={<NewPasswordPage />} />
+						<Route path={ROUTES.SystemoffPage} element={<SystemOffPage />} />
 					</Routes>
 				</BrowserRouter>
 			</AuthContextProvider>

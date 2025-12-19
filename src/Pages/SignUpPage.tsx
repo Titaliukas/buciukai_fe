@@ -91,11 +91,16 @@ export default function SignUpPage() {
 					state: { message: 'Registracija sėkminga!' },
 				});
 			}
-		} catch (error) {
+		} catch (error: any) {
 			console.log(error);
 			const user = auth.currentUser;
 			if (user) await deleteUser(user);
+			if (error.response?.status === 403){
+				setSnackbarMessage('Registracija šiuo metu išjungta');
+			}
+			else {
 			setSnackbarMessage('Registracija nepavyko!');
+			}
 			setSnackbarOpen(true);
 		} finally {
 			setIsLoading(false);

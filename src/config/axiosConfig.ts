@@ -21,7 +21,18 @@ instance.interceptors.request.use(async (config) => {
 	}
 	return config;
 });
+
+instance.interceptors.response.use(
+  response => response,
+  error => {
+    if (error.response?.status === 503) {
+      window.location.href = '/system-off';
+    }
+    return Promise.reject(error);
+  }
+);
 instance.defaults.headers.common['Content-Type'] = 'application/json';
 instance.defaults.timeout = TIMEOUT;
+
 
 export default instance;
