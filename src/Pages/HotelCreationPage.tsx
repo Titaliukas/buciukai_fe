@@ -56,7 +56,7 @@ export default function HotelCreationPage() {
       <NavBar />
       <Box sx={{ bgcolor: '#f2f2f2', minHeight: '100vh', py: 6 }}>
         <Container maxWidth="sm">
-          <Typography variant="h4" sx={{ textAlign: 'center', mb: 4 }}>
+          <Typography color='black' variant="h4" sx={{ textAlign: 'center', mb: 4 }}>
             Naujo Viešbučio Kūrimas
           </Typography>
 

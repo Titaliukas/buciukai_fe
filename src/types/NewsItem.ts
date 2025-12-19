@@ -4,3 +4,5 @@ type NewsItem = {
   message: string;
   visibleUntil: string;
 };
+
+export default NewsItem;
