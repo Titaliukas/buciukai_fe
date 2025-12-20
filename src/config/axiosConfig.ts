@@ -1,5 +1,6 @@
 import axios from 'axios';
 import { auth } from './FirebaseConfig';
+import { ROUTES } from '../constants';
 
 const API_BASE_URL = String(import.meta.env.VITE_API_BASE_URL);
 const TIMEOUT = 2500; // 2,5 seconds
@@ -26,7 +27,9 @@ instance.interceptors.response.use(
   response => response,
   error => {
     if (error.response?.status === 503) {
-      window.location.href = '/system-off';
+      if (window.location.pathname !== ROUTES.SystemoffPage) {
+        window.location.href = ROUTES.SystemoffPage;
+      }
     }
     return Promise.reject(error);
   }

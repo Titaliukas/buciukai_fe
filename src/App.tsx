@@ -28,7 +28,8 @@ import { ProtectedRoute } from './Components/ProtectedRoute';
 import { AuthContextProvider } from './context/authContext';
 import { LocalizationProvider } from '@mui/x-date-pickers';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
-import RoomDetailsPage from './Pages/RoomDetailsPage.tsx';
+import RoomDetailsPage from './Pages/RoomDetailsPage';
+import { AdminRoute } from './Components/AdminRoute';
 
 function App() {
 	return (
@@ -36,34 +37,40 @@ function App() {
 			<AuthContextProvider>
 				<BrowserRouter>
 					<Routes>
-						<Route element={<ProtectedRoute />}>
-							<Route path={ROUTES.HomePage} element={<HomePage />} />
-							<Route path={ROUTES.ProfilePage} element={<ProfilePage />} />
-							<Route path={ROUTES.AdminPage} element={<AdminPage />} />
-							<Route path={ROUTES.ClientManagement} element={<ClientManagementPage />} />
-							<Route path={ROUTES.SystemSetting} element={<SystemSettingPage />} />
-							<Route path={ROUTES.EventForm} element={<EventFormPage />} />
-							<Route path={ROUTES.RoomCreation} element={<RoomCreationPage />} />
-							<Route path={ROUTES.AnnouncementForm} element={<AnnouncementFormPage />} />
-							<Route path={ROUTES.HotelCreation} element={<HotelCreationPage />} />
-							<Route path={ROUTES.ReportSelection} element={<ReportSelectionPage />} />
-							<Route path={ROUTES.ClientHistoryReport} element={<ClientHistoryReportPage />} />
-							<Route path={ROUTES.DailyOcupancyReport} element={<DailyOcupancyReportPage />} />
-							<Route path={ROUTES.OccupancyIncomeReport} element={<OccupancyIncomeReportPage />} />
-							<Route path={ROUTES.ReservationStatusReport} element={<ReservationStatusReportPage />} />
-							<Route path={ROUTES.RoomsListPage} element={<RoomsListPage />} />
-							<Route path={ROUTES.ReservationsPage} element={<ReservationsPage />} />
-							<Route path={ROUTES.ReservationTimesPage} element={<ReservationTimesPage />} />
-							<Route path={ROUTES.InboxPage} element={<InboxPage />} />
-							<Route path={ROUTES.RoomDetailsPage} element={<RoomDetailsPage />} />
-						</Route>
+				{/* AUTHENTICATED USERS */}
+				<Route element={<ProtectedRoute />}>
+					<Route path={ROUTES.HomePage} element={<HomePage />} />
+					<Route path={ROUTES.ProfilePage} element={<ProfilePage />} />
+					<Route path={ROUTES.RoomsListPage} element={<RoomsListPage />} />
+					<Route path={ROUTES.ReservationsPage} element={<ReservationsPage />} />
+					<Route path={ROUTES.ReservationTimesPage} element={<ReservationTimesPage />} />
+					<Route path={ROUTES.InboxPage} element={<InboxPage />} />
+					<Route path={ROUTES.RoomDetailsPage} element={<RoomDetailsPage />} />
+					<Route path={ROUTES.SystemoffPage} element={<SystemOffPage />} />
+				</Route>
 
-						<Route path={ROUTES.SignInPage} element={<SignInPage />} />
-						<Route path={ROUTES.SignUpPage} element={<SignUpPage />} />
-						<Route path={ROUTES.ResetPasswordPage} element={<ResetPasswordPage />} />
-						<Route path={ROUTES.NewPasswordPage} element={<NewPasswordPage />} />
-						<Route path={ROUTES.SystemoffPage} element={<SystemOffPage />} />
-					</Routes>
+				{/* ADMIN ONLY */}
+				<Route element={<AdminRoute />}>
+					<Route path={ROUTES.AdminPage} element={<AdminPage />} />
+					<Route path={ROUTES.ClientManagement} element={<ClientManagementPage />} />
+					<Route path={ROUTES.SystemSetting} element={<SystemSettingPage />} />
+					<Route path={ROUTES.EventForm} element={<EventFormPage />} />
+					<Route path={ROUTES.RoomCreation} element={<RoomCreationPage />} />
+					<Route path={ROUTES.AnnouncementForm} element={<AnnouncementFormPage />} />
+					<Route path={ROUTES.HotelCreation} element={<HotelCreationPage />} />
+					<Route path={ROUTES.ReportSelection} element={<ReportSelectionPage />} />
+					<Route path={ROUTES.ClientHistoryReport} element={<ClientHistoryReportPage />} />
+					<Route path={ROUTES.DailyOcupancyReport} element={<DailyOcupancyReportPage />} />
+					<Route path={ROUTES.OccupancyIncomeReport} element={<OccupancyIncomeReportPage />} />
+					<Route path={ROUTES.ReservationStatusReport} element={<ReservationStatusReportPage />} />
+				</Route>
+
+				{/* PUBLIC */}
+				<Route path={ROUTES.SignInPage} element={<SignInPage />} />
+				<Route path={ROUTES.SignUpPage} element={<SignUpPage />} />
+				<Route path={ROUTES.ResetPasswordPage} element={<ResetPasswordPage />} />
+				<Route path={ROUTES.NewPasswordPage} element={<NewPasswordPage />} />
+				</Routes>
 				</BrowserRouter>
 			</AuthContextProvider>
 		</LocalizationProvider>
