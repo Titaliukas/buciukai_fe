@@ -1,24 +1,22 @@
 import { Box, Button, Container, TextField, Typography } from '@mui/material';
 import NavBar from '../Components/NavBar';
-import { useContext, useEffect, useState } from 'react';
-import AuthContext from '../context/authContext';
+import { useContext, useEffect, useState, useCallback } from 'react';
+import UserContext from '../context/userContext';
 import { DatePicker } from '@mui/x-date-pickers/DatePicker';
 import dayjs, { Dayjs } from 'dayjs';
 import axiosInstance from '../config/axiosConfig';
 import { deleteUser, EmailAuthProvider, reauthenticateWithCredential, updatePassword } from 'firebase/auth';
 import { auth } from '../config/FirebaseConfig';
-import { UserInfo } from '../types/UserInfo';
+// removed unused UserInfo type import
 import { SnackbarError, SnackbarSuccess } from '../Components/SnackBarAlert';
 import ConfirmModalWithText from '../Components/ConfirmModalWithText';
 
 export default function ProfilePage() {
 	const [editable, setEditable] = useState<boolean>(false);
-	const { user } = useContext(AuthContext);
-	const [userInfo, setUserInfo] = useState<UserInfo | null>(null);
+	const { userInfo, refresh } = useContext(UserContext);
 	const [isLoading, setIsLoading] = useState(false);
 
 	const [username, setUsername] = useState(userInfo?.username || '');
-	const role = 1;
 	const [name, setName] = useState(userInfo?.name || '');
 	const [surname, setSurname] = useState(userInfo?.surname || '');
 	const [email, setEmail] = useState(userInfo?.email || '');
@@ -59,19 +57,8 @@ export default function ProfilePage() {
 					await updatePassword(user, password);
 				}
 
-				if (setUserInfo) {
-					setUserInfo({
-						username,
-						name,
-						surname,
-						email,
-						phoneNumber,
-						birthdate: birthdate ? birthdate.toDate() : null,
-						city,
-						postalCode,
-						role,
-					});
-				}
+				// Refresh user profile from server to keep context in sync
+				await refresh();
 
 				setEditable(false);
 				setSnackbarSuccessMessage('Nauji duomenys išsaugoti sėkmingai!');
@@ -86,7 +73,7 @@ export default function ProfilePage() {
 		}
 	};
 
-	const handleUserDelete = async () => {
+	const handleUserDelete = useCallback(async () => {
 		setIsLoading(true);
 
 		try {
@@ -104,7 +91,7 @@ export default function ProfilePage() {
 			setSnackbarErrorMessage('Nepavyko ištrinti vartotojo!');
 			setSnackbarErrorOpen(true);
 		}
-	};
+	}, [input]);
 
 	const [openModal, setOpenModal] = useState(false);
 	const [confirmedModal, setConfirmedModal] = useState<boolean | null>(null);
@@ -122,27 +109,10 @@ export default function ProfilePage() {
 			handleUserDelete();
 			setConfirmedModal(null);
 		}
-	}, [confirmedModal, input]);
+	}, [confirmedModal, input, handleUserDelete]);
 
 	useEffect(() => {
-		if (!user) return;
-
-		const fetchUserInfo = async () => {
-			try {
-				const path = '/users/profile';
-				const res = await axiosInstance.get<UserInfo>(path);
-				setUserInfo(res.data);
-			} catch (err) {
-				console.error('Failed to load profile:', err);
-			} finally {
-				setIsLoading(false);
-			}
-		};
-
-		fetchUserInfo();
-	}, [user]);
-
-	useEffect(() => {
+		// when context userInfo changes, reflect into local form fields
 		if (userInfo) {
 			setUsername(userInfo.username || '');
 			setName(userInfo.name || '');
@@ -153,8 +123,10 @@ export default function ProfilePage() {
 			setPostalCode(userInfo.postalCode || '');
 			setCity(userInfo.city || '');
 		}
+		setIsLoading(false);
 	}, [userInfo]);
 
+	console.log(userInfo);
 	return (
 		<>
 			<NavBar />

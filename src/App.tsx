@@ -24,15 +24,19 @@ import ReservationsPage from './Pages/ReservationsPage';
 import ReservationTimesPage from './Pages/ReservationTimesPage';
 import InboxPage from './Pages/InboxPage';
 import { ProtectedRoute } from './Components/ProtectedRoute';
+import { RoleProtectedRoute } from './Components/RoleProtectedRoute';
 import { AuthContextProvider } from './context/authContext';
+import { UserContextProvider } from './context/userContext';
 import { LocalizationProvider } from '@mui/x-date-pickers';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import RoomDetailsPage from './Pages/RoomDetailsPage.tsx';
+import Roles from './enum/Roles';
 
 function App() {
 	return (
 		<LocalizationProvider dateAdapter={AdapterDayjs}>
 			<AuthContextProvider>
+				<UserContextProvider>
 				<BrowserRouter>
 					<Routes>
 						<Route element={<ProtectedRoute />}>
@@ -52,7 +56,10 @@ function App() {
 							<Route path={ROUTES.ReservationStatusReport} element={<ReservationStatusReportPage />} />
 							<Route path={ROUTES.RoomsListPage} element={<RoomsListPage />} />
 							<Route path={ROUTES.ReservationsPage} element={<ReservationsPage />} />
-							<Route path={ROUTES.ReservationTimesPage} element={<ReservationTimesPage />} />
+							{/* Staff-only route for reservation time management */}
+							<Route element={<RoleProtectedRoute roles={[Roles.Staff]} />}> 
+								<Route path={ROUTES.ReservationTimesPage} element={<ReservationTimesPage />} />
+							</Route>
 							<Route path={ROUTES.InboxPage} element={<InboxPage />} />
 							<Route path={ROUTES.RoomDetailsPage} element={<RoomDetailsPage />} />
 						</Route>
@@ -63,6 +70,7 @@ function App() {
 						<Route path={ROUTES.NewPasswordPage} element={<NewPasswordPage />} />
 					</Routes>
 				</BrowserRouter>
+				</UserContextProvider>
 			</AuthContextProvider>
 		</LocalizationProvider>
 	);

@@ -9,6 +9,8 @@ import {
 import EditIcon from '@mui/icons-material/Edit';
 import Room from '../types/Room';
 import { useNavigate } from 'react-router-dom';
+import { useContext } from 'react';
+import UserContext from '../context/userContext';
 
 type Props = {
   room: Room;
@@ -16,6 +18,7 @@ type Props = {
 
 export default function RoomCard({ room }: Props) {
   const navigate = useNavigate();
+  const { isStaff } = useContext(UserContext);
 
   return (
     <Paper
@@ -63,27 +66,29 @@ export default function RoomCard({ room }: Props) {
           }}
         />
 
-        {/* EDIT BUTTON (admin action) */}
-        <Tooltip title="Redaguoti laikus">
-          <IconButton
-            onClick={(e) => {
-              e.stopPropagation();
-              navigate(`/rooms/${room.id}/reservation-times`);
-            }}
-            sx={{
-              position: 'absolute',
-              top: 12,
-              right: 12,
-              bgcolor: 'rgba(0,0,0,0.5)',
-              color: 'white',
-              '&:hover': {
-                bgcolor: 'rgba(0,0,0,0.7)',
-              },
-            }}
-          >
-            <EditIcon />
-          </IconButton>
-        </Tooltip>
+        {/* EDIT BUTTON (staff-only) */}
+        {isStaff && (
+          <Tooltip title="Redaguoti laikus">
+            <IconButton
+              onClick={(e) => {
+                e.stopPropagation();
+                navigate(`/rooms/${room.id}/reservation-times`);
+              }}
+              sx={{
+                position: 'absolute',
+                top: 12,
+                right: 12,
+                bgcolor: 'rgba(0,0,0,0.5)',
+                color: 'white',
+                '&:hover': {
+                  bgcolor: 'rgba(0,0,0,0.7)',
+                },
+              }}
+            >
+              <EditIcon />
+            </IconButton>
+          </Tooltip>
+        )}
       </Box>
 
       {/* CONTENT */}

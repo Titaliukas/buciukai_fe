@@ -23,14 +23,10 @@ interface Props {
   onCancel?: () => void;
 }
 
-function formatDate(dateStr : string) {
-  const d = new Date(dateStr);
-  return d.toLocaleDateString(undefined, {
-    weekday: "short",
-    year: "numeric",
-    month: "short",
-    day: "numeric",
-  });
+function formatDate(dateStr: string) {
+  if (!dateStr) return '';
+  const d = parseISO(dateStr);
+  return format(d, 'EEE, MMM d, yyyy', { locale: lt });
 }
 
 function getDisplayCheckOut(checkOutStr: string): string {

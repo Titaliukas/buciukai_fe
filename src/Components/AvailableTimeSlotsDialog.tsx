@@ -173,6 +173,12 @@ export default function AvailableTimeSlotsDialog({ open, onClose, room }: Props)
           <Box sx={{ display: 'flex', justifyContent: 'center', py: 4 }}>
             <CircularProgress />
           </Box>
+        ) : availableDates.size === 0 ? (
+          <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', py: 4 }}>
+            <Typography variant="body1" color="text.secondary">
+              Šiuo metu nėra laisvų rezervacijos laikų.
+            </Typography>
+          </Box>
         ) : (
           <Box display="grid" gridTemplateColumns="repeat(7, 1fr)" gap={1} textAlign="center">
             {[...Array(7)].map((_, i) => (
@@ -215,7 +221,7 @@ export default function AvailableTimeSlotsDialog({ open, onClose, room }: Props)
           variant="contained" 
           color="primary" 
           onClick={handleSave} 
-          disabled={!range.start || saving}
+          disabled={!range.start || saving || availableDates.size === 0}
         >
           {saving ? 'Kuriama...' : 'Patvirtinti'}
         </Button>
