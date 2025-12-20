@@ -199,21 +199,6 @@ export default function SystemSettingsPage() {
 
                 <Divider sx={{ mb: 3 }} />
 
-                {/* SHUTDOWN BUTTON */}
-                <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                  <Typography variant="h6" color="error">
-                    Išjungti sistemą
-                  </Typography>
-                  <Button
-                    variant="contained"
-                    color="error"
-                    sx={{ fontWeight: 'bold', textTransform: 'none', borderRadius: 2 }}
-                    disabled={saving}
-                    onClick={() => setIsShutdownDialogOpen(true)}
-                  >
-                    Išjungti
-                  </Button>
-                </Box>
 
                 <Box sx={{ mt: 3 }}>
                   <Button variant="outlined" onClick={loadSettings} disabled={saving}>
@@ -224,22 +209,7 @@ export default function SystemSettingsPage() {
             )}
           </Paper>
         </Container>
-      </Box>
-
-      <Dialog open={isShutdownDialogOpen} onClose={() => setIsShutdownDialogOpen(false)}>
-        <DialogTitle>Patvirtinti sistemos išjungimą</DialogTitle>
-        <DialogContent>
-          <DialogContentText>
-            Ar tikrai norite išjungti visą sistemą? Vartotojai praras prieigą, kol ji nebus įjungta iš naujo.
-          </DialogContentText>
-        </DialogContent>
-        <DialogActions>
-          <Button onClick={() => setIsShutdownDialogOpen(false)}>Atšaukti</Button>
-          <Button color="error" variant="contained" onClick={confirmShutdown}>
-            Patvirtinti išjungimą
-          </Button>
-        </DialogActions>
-      </Dialog>
+      </Box>    
     </>
   );
 }

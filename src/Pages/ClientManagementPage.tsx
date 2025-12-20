@@ -134,7 +134,7 @@ export default function ClientManagementPage() {
 
       <Box sx={{ bgcolor: '#f2f2f2', minHeight: '100vh', py: 6 }}>
         <Container maxWidth="lg">
-          <Typography variant="h4" sx={{ textAlign: 'center', mb: 4 }}>
+          <Typography color='black' variant="h4" sx={{ textAlign: 'center', mb: 4 }}>
             Klientų Tvarkyklė
           </Typography>
 
@@ -155,7 +155,6 @@ export default function ClientManagementPage() {
                   <TableCell sx={{ color: 'white' }}>Vardas</TableCell>
                   <TableCell sx={{ color: 'white' }}>Pavardė</TableCell>
                   <TableCell sx={{ color: 'white' }}>El. paštas</TableCell>
-                  <TableCell sx={{ color: 'white' }}>Miestas</TableCell>
                   <TableCell sx={{ color: 'white' }}>Rolė</TableCell>
                   <TableCell sx={{ color: 'white' }}>Veiksmai</TableCell>
                 </TableRow>

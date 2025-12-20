@@ -92,7 +92,7 @@ export default function InboxPage() {
 
       <Box sx={{ bgcolor: '#f2f2f2', minHeight: '100vh', py: 6 }}>
         <Container maxWidth="md">
-          <Typography variant="h4" mb={4}>
+          <Typography color='black' variant="h4" mb={4}>
             📥 Mano pranešimai
           </Typography>
 

@@ -56,80 +56,109 @@ export default function RoomsListPage() {
     fetchRooms();
   }, [hotelId, hotelName]);
   return (
-    <>
-      <NavBar />
-      {events.length > 0 && (
-  <Box sx={{ mb: 4 }}>
-    <Typography
-      variant="h6"
-      sx={{ fontWeight: 'bold', mb: 2 }}
-    >
-      📅 Viešbučio renginiai
-    </Typography>
+  <>
+    <NavBar />
 
-    {events.map(ev => (
-      <Box
-        key={ev.id}
-        sx={{
-          bgcolor: 'white',
-          p: 2,
-          mb: 2,
-          borderLeft: '4px solid #54923D',
-          borderRadius: 1,
-        }}
-      >
-        <Typography variant="subtitle1" fontWeight="bold">
-          {ev.title}
-        </Typography>
+    {/* Page background */}
+    <Box sx={{ bgcolor: '#f2f2f2', minHeight: '100vh', pb: 4, pt: 2 }}>
+      <Container maxWidth="lg">
 
-        <Typography sx={{ mt: 0.5 }}>
-          {ev.description}
-        </Typography>
+        {/* EVENTS SECTION */}
+        {events.length > 0 && (
+          <Box sx={{ mb: 5 }}>
+            <Typography
+              variant="h5"
+              sx={{
+                fontWeight: 'bold',
+                mb: 2,
+                color: '#000',
+                display: 'flex',
+                alignItems: 'center',
+                gap: 1,
+              }}
+            >
+              📅 Viešbučio renginiai
+            </Typography>
 
+            {events.map(ev => (
+              <Box
+                key={ev.id}
+                sx={{
+                  bgcolor: '#fff',
+                  p: 2.5,
+                  mb: 2,
+                  borderLeft: '5px solid #54923D',
+                  borderRadius: 2,
+                  boxShadow: '0 2px 6px rgba(0,0,0,0.08)',
+                }}
+              >
+                <Typography
+                  variant="subtitle1"
+                  sx={{ fontWeight: 'bold', color: '#000' }}
+                >
+                  {ev.title}
+                </Typography>
+
+                <Typography
+                  sx={{ mt: 0.5, color: '#333' }}
+                >
+                  {ev.description}
+                </Typography>
+
+                <Typography
+                  variant="caption"
+                  sx={{ display: 'block', mt: 1, color: '#666' }}
+                >
+                  {new Date(ev.startAt).toLocaleString()} –{' '}
+                  {new Date(ev.endAt).toLocaleString()}
+                </Typography>
+              </Box>
+            ))}
+          </Box>
+        )}
+
+        {/* ROOMS SECTION */}
         <Typography
-          variant="caption"
-          color="text.secondary"
-          sx={{ display: 'block', mt: 1 }}
+          variant="h5"
+          sx={{ fontWeight: 'bold', mb: 2, color: '#000' }}
         >
-          {new Date(ev.startAt).toLocaleString()} –{' '}
-          {new Date(ev.endAt).toLocaleString()}
+          {hotelName
+            ? `${hotelName} viešbučio kambariai`
+            : 'Viešbučio kambariai'}
         </Typography>
-      </Box>
-    ))}
-  </Box>
-)}
 
-      <Box sx={{ bgcolor: '#f2f2f2', minHeight: '100vh', pb: 4, pt: 0.01 }}>
+        {loading && (
+          <Box sx={{ display: 'flex', justifyContent: 'center', py: 4 }}>
+            <CircularProgress />
+          </Box>
+        )}
 
-        {/* White Content Section */}
-        <Container sx={{ mt: 4 }}>
-          <Typography variant='h5' sx={{ fontWeight: 'bold', mb: 2, color: 'black' }}>
-            {hotelName ? `${hotelName} viešbučio kambariai` : 'Viešbučio kambariai'}
+        {error && (
+          <Typography
+            variant="body1"
+            sx={{ textAlign: 'center', py: 4, color: 'red' }}
+          >
+            {error}
           </Typography>
+        )}
 
-          {loading && (
-            <Box sx={{ display: 'flex', justifyContent: 'center', py: 4 }}>
-              <CircularProgress />
-            </Box>
-          )}
+        {!loading && !error && rooms.length === 0 && (
+          <Typography
+            variant="body1"
+            sx={{ textAlign: 'center', py: 4, color: '#666' }}
+          >
+            Kambarių nerasta.
+          </Typography>
+        )}
 
-          {error && (
-            <Typography variant='body1' color='error' sx={{ textAlign: 'center', py: 4 }}>
-              {error}
-            </Typography>
-          )}
-
-          {!loading && !error && rooms.length === 0 && (
-            <Typography variant='body1' color='text.secondary' sx={{ textAlign: 'center', py: 4 }}>
-              Kambarių nerasta.
-            </Typography>
-          )}
-
-          {!loading && !error && rooms.map((room) => (
+        {!loading && !error &&
+          rooms.map(room => (
             <RoomCard key={room.id} room={room} />
-          ))}
-        </Container>
-      </Box>
-    </>
-  );
+          ))
+        }
+      </Container>
+    </Box>
+  </>
+);
+
 }

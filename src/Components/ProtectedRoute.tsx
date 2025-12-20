@@ -14,6 +14,10 @@ export const ProtectedRoute = () => {
 		}
 	}, [user, isLoading, navigate, location]);
 
+	if (location.pathname === ROUTES.SystemoffPage) {
+    return <Outlet />;
+  	}
+	
 	// Logged in → render the child route
 	return <Outlet />;
 };

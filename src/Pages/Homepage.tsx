@@ -7,33 +7,22 @@ import { useEffect, useState } from 'react';
 import { SnackbarSuccess } from '../Components/SnackBarAlert';
 import NewsItem from '../types/NewsItem';
 import axiosInstance from '../config/axiosConfig';
+import { getHotels } from '../api/hotelApi';
+import type Hotel from '../types/Hotel';
 
-const hotelList = [
-	{
-		id: '1',
-		name: 'Viešbutis 1',
-		location: 'Kaunas, Lietuva',
-		lowestPrice: 70,
-	},
-	{
-		id: '2',
-		name: 'Viešbutis 2',
-		location: 'Vilnius, Lietuva',
-		lowestPrice: 80,
-	},
-	{
-		id: '3',
-		name: 'Viešbutis 3',
-		location: 'Klaipėda, Lietuva',
-		lowestPrice: 90,
-	},
-];
-
+// Fetched from backend; no hardcoded hotels
 export default function HomePage() {
-	const location = useLocation();
-	const [snackbarOpen, setSnackbarOpen] = useState(false);
-	const [snackbarMessage, setSnackbarMessage] = useState('');
-	const [news, setNews] = useState<NewsItem[]>([]);
+    const location = useLocation();
+    const [snackbarOpen, setSnackbarOpen] = useState(false);
+    const [snackbarMessage, setSnackbarMessage] = useState('');
+    const [news, setNews] = useState<NewsItem[]>([]);
+    const [hotels, setHotels] = useState<Hotel[]>([]);
+
+	useEffect(() => {
+		getHotels()
+			.then(setHotels)
+			.catch(err => console.error('Failed to load hotels', err));
+	}, []);
 
 	useEffect(() => {
   	axiosInstance
@@ -53,6 +42,7 @@ export default function HomePage() {
 		}
 	}, [location.state]);
 
+	console.log('hotels:', hotels);
 	return (
 		<>
 			<NavBar />
@@ -135,7 +125,12 @@ export default function HomePage() {
 						Viešbučiai
 					</Typography>
 
-					{hotelList.map((hotel) => (
+					{hotels.length === 0 && (
+						<Typography sx={{ color: 'text.secondary' }}>
+							Viešbučių nėra
+						</Typography>
+					)}
+					{hotels.map((hotel) => (
 						<HotelCard key={hotel.id} hotel={hotel} />
 					))}
 				</Container>
