@@ -155,7 +155,6 @@ export default function ClientManagementPage() {
                   <TableCell sx={{ color: 'white' }}>Vardas</TableCell>
                   <TableCell sx={{ color: 'white' }}>Pavardė</TableCell>
                   <TableCell sx={{ color: 'white' }}>El. paštas</TableCell>
-                  <TableCell sx={{ color: 'white' }}>Miestas</TableCell>
                   <TableCell sx={{ color: 'white' }}>Rolė</TableCell>
                   <TableCell sx={{ color: 'white' }}>Veiksmai</TableCell>
                 </TableRow>
