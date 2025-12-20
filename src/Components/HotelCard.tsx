@@ -40,10 +40,14 @@ export default function HotelCard({ hotel }: HotelCardProps) {
 					<Typography variant='h6' fontWeight='bold'>
 						{hotel.name}
 					</Typography>
-					<Typography>{hotel.location}</Typography>
-					<Typography variant='h6' sx={{ mt: 1, fontWeight: 'bold' }}>
-						Nuo {hotel.lowestPrice}€
-					</Typography>
+					{hotel.location && (
+						<Typography>{hotel.location}</Typography>
+					)}
+					{typeof hotel.lowestPrice === 'number' && (
+						<Typography variant='h6' sx={{ mt: 1, fontWeight: 'bold' }}>
+							Nuo {hotel.lowestPrice}€
+						</Typography>
+					)}
 				</Box>
 
 				<Button
