@@ -71,9 +71,14 @@ export default function SignInPage() {
 					state: { message: 'Prisijungimas sėkmingas!' },
 				});
 			}
-		} catch (error) {
+		} catch (error: any) {
 			console.log(error);
+			if (error.code === 'auth/user-disabled') {
+    		setSnackbarErrorMessage('Jūsų paskyra užblokuota');
+			}
+			else {
 			setSnackbarErrorMessage('Prisijungimas nepavyko!');
+			}
 			setSnackbarErrorOpen(true);
 		} finally {
 			setIsLoading(false);
