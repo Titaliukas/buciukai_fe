@@ -10,6 +10,7 @@ import {
   Stack,
   Button,
 } from "@mui/material";
+import { useState } from "react";
 import { addDays, parseISO, format } from "date-fns";
 import { lt } from "date-fns/locale";
 import HotelIcon from "@mui/icons-material/Hotel";
@@ -17,20 +18,18 @@ import LocationOnIcon from "@mui/icons-material/LocationOn";
 import CalendarTodayIcon from "@mui/icons-material/CalendarToday";
 import Reservation from "../types/Reservation";
 import InfoComponent from "./InfoComponent";
+import ConfirmModal from "./ConfirmModal";
+import { cancelReservation } from "../api/reservationApi";
 
 interface Props {
   reservation?: Reservation | null;
   onCancel?: () => void;
 }
 
-function formatDate(dateStr : string) {
-  const d = new Date(dateStr);
-  return d.toLocaleDateString(undefined, {
-    weekday: "short",
-    year: "numeric",
-    month: "short",
-    day: "numeric",
-  });
+function formatDate(dateStr: string) {
+  if (!dateStr) return '';
+  const d = parseISO(dateStr);
+  return format(d, 'EEE, MMM d, yyyy', { locale: lt });
 }
 
 function getDisplayCheckOut(checkOutStr: string): string {
@@ -44,6 +43,25 @@ export default function ReservationCard({
   onCancel,
 }: Props) {
   const defaultImage = "https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?w=1200&q=80&auto=format&fit=crop&ixlib=rb-4.0.3&s=example";
+  const [cancelConfirmOpen, setCancelConfirmOpen] = useState(false);
+  const [cancelLoading, setCancelLoading] = useState(false);
+
+  const handleConfirmCancel = async () => {
+    if (!reservation || reservation.status === 'Cancelled') return;
+    // Prefer parent-provided handler; fallback to direct API call
+    if (onCancel) {
+      onCancel();
+      return;
+    }
+    try {
+      setCancelLoading(true);
+      await cancelReservation(Number(reservation.id));
+    } catch {
+      // Let parent handle feedback in its own flow; keep silent here
+    } finally {
+      setCancelLoading(false);
+    }
+  };
 
   return (
     <Card sx={{ width: '100vh', display: 'flex', flexDirection: { xs: 'column', sm: 'row' }, mb: 2, position: 'relative' }}>
@@ -92,10 +110,11 @@ export default function ReservationCard({
               <Button
                 variant="contained"
                 color="error"
-                onClick={onCancel}
+                onClick={() => setCancelConfirmOpen(true)}
+                disabled={cancelLoading}
                 aria-label={`Atšaukti rezervaciją ${reservation?.id}`}
               >
-                Atšaukti
+                {cancelLoading ? 'Atšaukiama...' : 'Atšaukti'}
               </Button>
             )}
 
@@ -110,6 +129,20 @@ export default function ReservationCard({
           </Box>
         </CardContent>
       </Box>
+
+      <ConfirmModal
+        open={cancelConfirmOpen}
+        handleClose={() => setCancelConfirmOpen(false)}
+        onResult={(confirmed) => {
+          if (confirmed) {
+            handleConfirmCancel();
+          }
+        }}
+        title={"Patvirtinti atšaukimą"}
+        description={"Ar tikrai norite atšaukti šią rezervaciją?"}
+        cancelButton={"Atšaukti"}
+        confirmButton={"Patvirtinti"}
+      />
     </Card>
   );
 }

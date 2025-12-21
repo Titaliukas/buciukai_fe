@@ -9,6 +9,7 @@ import {
   CircularProgress
 } from '@mui/material';
 import HotelIcon from '@mui/icons-material/Hotel';
+import MeetingRoomIcon from '@mui/icons-material/MeetingRoom';
 import StraightenIcon from '@mui/icons-material/Straighten';
 import StairsIcon from '@mui/icons-material/Stairs';
 import BedIcon from '@mui/icons-material/Bed';
@@ -41,11 +42,13 @@ export default function RoomDetailsPage() {
         setLoading(true);
         const data = await getRoomById(roomId);
         // Map RoomDto to Room type
+        console.log(data.roomType);
         setRoom({
           ...data,
           type: data.roomType,
           size: data.sizeM2,
           floor: data.floorNumber,
+          beds: data.bedType,
         } as unknown as Room & Partial<RoomDetails>);
         setError(null);
       } catch (err) {
@@ -124,9 +127,6 @@ export default function RoomDetailsPage() {
                   justifyContent="space-between"
                   alignItems="center"
                 >
-                  <Typography variant="h4" fontWeight="bold">
-                    {room?.roomType ?? room?.type ?? 'Kambarys'}
-                  </Typography>
 
                   <Chip
                     label={`${(room?.price ?? 0).toFixed(2)} € už naktį`}
@@ -165,6 +165,7 @@ export default function RoomDetailsPage() {
                   spacing={4}
                   sx={{ mb: 4 }}
                 >
+                  <Detail icon={<MeetingRoomIcon />} label="Kambario numeris" value={room?.roomNumber} />
                   <Detail icon={<BedIcon />} label="Lovos tipas" value={room?.bedType} />
                   <Detail icon={<StairsIcon />} label="Aukštas" value={room?.floorNumber} />
                   <Detail icon={<StraightenIcon />} label="Dydis" value={room?.sizeM2 ? `${room.sizeM2} m²` : undefined} />
