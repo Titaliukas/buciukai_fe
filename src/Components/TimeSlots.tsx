@@ -28,6 +28,7 @@ import { lt } from 'date-fns/locale';
 import ArrowBackIosNewIcon from '@mui/icons-material/ArrowBackIosNew';
 import ArrowForwardIosIcon from '@mui/icons-material/ArrowForwardIos';
 import { getAvailability, upsertAvailability, deleteAvailability, type AvailabilitySlotDTO } from '../api/availabilityApi';
+import ConfirmModal from './ConfirmModal';
 
 interface Props {
   roomId: string;
@@ -40,6 +41,8 @@ export default function TimeSlotsCalendar({ roomId }: Props) {
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
+  const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false);
+  const [insertConfirmOpen, setInsertConfirmOpen] = useState(false);
 
   // Fetch existing availability on mount
   useEffect(() => {
@@ -271,16 +274,16 @@ export default function TimeSlotsCalendar({ roomId }: Props) {
           Pasirinkti viską
         </Button>
         <Box sx={{ display: 'flex', gap: 2 }}>
-          <Button variant="outlined" onClick={handleClear} disabled={saving}>
+          <Button variant="outlined" onClick={() => setDeleteConfirmOpen(true)} disabled={saving}>
             {saving ? 'Ištrinami laikai...' : 'Ištrinti laikus'}
           </Button>
           <Button 
             variant="contained" 
             color="primary" 
-            onClick={handleSave}
+            onClick={() => setInsertConfirmOpen(true)}
             disabled={saving || selected.size === 0}
           >
-            {saving ? 'Išsaugoma...' : 'Išsaugoti'}
+            {saving ? 'Įterpiama...' : 'Įterpti'}
           </Button>
         </Box>
       </Box>
@@ -300,6 +303,34 @@ export default function TimeSlotsCalendar({ roomId }: Props) {
           </Alert>
         </Snackbar>
       )}
+
+      <ConfirmModal
+        open={deleteConfirmOpen}
+        handleClose={() => setDeleteConfirmOpen(false)}
+        onResult={(confirmed) => {
+          if (confirmed) {
+            handleClear();
+          }
+        }}
+        title={'Patvirtinti trynimą'}
+        description={'Ar tikrai norite ištrinti laiko tvarkaraštį?'}
+        cancelButton={'Atšaukti'}
+        confirmButton={'Patvirtinti'}
+      />
+
+      <ConfirmModal
+        open={insertConfirmOpen}
+        handleClose={() => setInsertConfirmOpen(false)}
+        onResult={(confirmed) => {
+          if (confirmed) {
+            handleSave();
+          }
+        }}
+        title={'Patvirtinti įterpimą'}
+        description={'Ar tikrai norite išsaugoti pasirinktus laikus?'}
+        cancelButton={'Atšaukti'}
+        confirmButton={'Patvirtinti'}
+      />
     </Box>
   );
 }

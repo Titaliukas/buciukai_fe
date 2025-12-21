@@ -53,6 +53,7 @@ function App() {
 					<Route element={<RoleProtectedRoute roles={[Roles.Staff]} />}> 
 						<Route path={ROUTES.ReservationTimesPage} element={<ReservationTimesPage />} />
 					</Route>
+					<Route path={ROUTES.RoomDetailsPage} element={<RoomDetailsPage />} />
 					<Route path={ROUTES.SystemoffPage} element={<SystemOffPage />} />
 				</Route>
 
