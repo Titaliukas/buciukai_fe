@@ -34,6 +34,22 @@ instance.interceptors.response.use(
     return Promise.reject(error);
   }
 );
+
+instance.interceptors.response.use(
+  res => res,
+  async error => {
+    if (error.response?.status === 403 &&
+        error.response?.data?.includes('užblokuota')) {
+
+      await auth.signOut();
+      localStorage.removeItem('token');
+
+      window.location.href = '/signin';
+    }
+
+    return Promise.reject(error);
+  }
+);
 instance.defaults.headers.common['Content-Type'] = 'application/json';
 instance.defaults.timeout = TIMEOUT;
 
