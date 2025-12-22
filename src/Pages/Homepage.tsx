@@ -7,16 +7,16 @@ import { useEffect, useState } from 'react';
 import { SnackbarSuccess } from '../Components/SnackBarAlert';
 import NewsItem from '../types/NewsItem';
 import axiosInstance from '../config/axiosConfig';
-import { getHotels } from '../api/hotelApi';
+import { getHotels, searchHotels, type HotelSearchFilters } from '../api/hotelApi';
 import type Hotel from '../types/Hotel';
 
-// Fetched from backend; no hardcoded hotels
 export default function HomePage() {
-    const location = useLocation();
-    const [snackbarOpen, setSnackbarOpen] = useState(false);
-    const [snackbarMessage, setSnackbarMessage] = useState('');
-    const [news, setNews] = useState<NewsItem[]>([]);
-    const [hotels, setHotels] = useState<Hotel[]>([]);
+	const location = useLocation();
+	const [snackbarOpen, setSnackbarOpen] = useState(false);
+	const [snackbarMessage, setSnackbarMessage] = useState('');
+	const [news, setNews] = useState<NewsItem[]>([]);
+	const [hotels, setHotels] = useState<Hotel[]>([]);
+	const [isSearching, setIsSearching] = useState(false);
 
 	useEffect(() => {
 		getHotels()
@@ -25,30 +25,50 @@ export default function HomePage() {
 	}, []);
 
 	useEffect(() => {
-  	axiosInstance
-    .get<NewsItem[]>('/announcements/news')
-    .then(res => setNews(res.data))
-    .catch(err => console.error('Failed to load news', err));
+		axiosInstance
+			.get<NewsItem[]>('/announcements/news')
+			.then(res => setNews(res.data))
+			.catch(err => console.error('Failed to load news', err));
 	}, []);
 
-	
-	// Show snackbar only once when arriving
 	useEffect(() => {
 		if (location.state?.message) {
 			setSnackbarMessage(location.state.message);
 			setSnackbarOpen(true);
-			// Clear state so refresh doesn't show snackbar again
 			window.history.replaceState({}, document.title);
 		}
 	}, [location.state]);
 
-	console.log('hotels:', hotels);
+	const handleSearch = async (filters: HotelSearchFilters) => {
+		setIsSearching(true);
+		try {
+			const results = await searchHotels(filters);
+			setHotels(results);
+		} catch (e) {
+			console.error('Search failed', e);
+			// jei norit, galite rodyti snackbar error (reikia atskiro komponento)
+		} finally {
+			setIsSearching(false);
+		}
+	};
+
+	const handleReset = async () => {
+		setIsSearching(true);
+		try {
+			const all = await getHotels();
+			setHotels(all);
+		} catch (e) {
+			console.error('Reload hotels failed', e);
+		} finally {
+			setIsSearching(false);
+		}
+	};
+
 	return (
 		<>
 			<NavBar />
 
 			<Box sx={{ bgcolor: '#f2f2f2', minHeight: '100vh', pb: 4 }}>
-				{/* Green Header Section */}
 				<Box
 					sx={{
 						bgcolor: '#54923D',
@@ -59,70 +79,67 @@ export default function HomePage() {
 					}}
 				>
 					<Container>
-						{/* Title */}
 						<Typography variant='h5' sx={{ fontWeight: 'bold', mb: 3, textAlign: 'left' }}>
 							Raskite savo viešbutį
 						</Typography>
 
-						<SearchBar />
+						<SearchBar onSearch={handleSearch} onReset={handleReset} />
 					</Container>
 				</Box>
 
-					{/* NEWS SECTION */}
+				{/* NEWS SECTION */}
 				<Container sx={{ mt: 4 }}>
-				<Typography
-					variant="h5"
-					sx={{ fontWeight: 'bold', mb: 2, color: '#000' }}
-				>
-					Naujienos
-				</Typography>
-
-				{news.length === 0 && (
-					<Typography sx={{ color: 'text.secondary' }}>
-					Naujienų nėra
-					</Typography>
-				)}
-
-				{news.map(n => (
-					<Box
-					key={n.id}
-					sx={{
-						bgcolor: '#fff',
-						p: 3,
-						mb: 2,
-						borderLeft: '4px solid #54923D',
-						borderRadius: 1,
-						boxShadow: '0 2px 6px rgba(0,0,0,0.05)',
-					}}
-					>
 					<Typography
-						variant="h6"
-						sx={{ fontWeight: 'bold', color: '#000' }}
+						variant="h5"
+						sx={{ fontWeight: 'bold', mb: 2, color: '#000' }}
 					>
-						{n.title}
+						Naujienos
 					</Typography>
 
-					<Typography sx={{ mt: 1, color: '#333' }}>
-						{n.message}
-					</Typography>
-
-					{n.visibleUntil && (
-						<Typography
-						variant="caption"
-						sx={{ mt: 1, display: 'block', color: 'text.secondary' }}
-						>
-						Galioja iki: {new Date(n.visibleUntil).toLocaleDateString()}
+					{news.length === 0 && (
+						<Typography sx={{ color: 'text.secondary' }}>
+							Naujienų nėra
 						</Typography>
 					)}
-					</Box>
-				))}
+
+					{news.map(n => (
+						<Box
+							key={n.id}
+							sx={{
+								bgcolor: '#fff',
+								p: 3,
+								mb: 2,
+								borderLeft: '4px solid #54923D',
+								borderRadius: 1,
+								boxShadow: '0 2px 6px rgba(0,0,0,0.05)',
+							}}
+						>
+							<Typography
+								variant="h6"
+								sx={{ fontWeight: 'bold', color: '#000' }}
+							>
+								{n.title}
+							</Typography>
+
+							<Typography sx={{ mt: 1, color: '#333' }}>
+								{n.message}
+							</Typography>
+
+							{n.visibleUntil && (
+								<Typography
+									variant="caption"
+									sx={{ mt: 1, display: 'block', color: 'text.secondary' }}
+								>
+									Galioja iki: {new Date(n.visibleUntil).toLocaleDateString()}
+								</Typography>
+							)}
+						</Box>
+					))}
 				</Container>
 
-
-				{/* White Content Section */}
 				<Container sx={{ mt: 4 }}>
 					<Typography variant='h5' sx={{ fontWeight: 'bold', mb: 2, color: 'black' }}>
-						Viešbučiai
+						Viešbučiai {isSearching ? '(kraunama...)' : ''}
 					</Typography>
 
 					{hotels.length === 0 && (
@@ -130,12 +147,18 @@ export default function HomePage() {
 							Viešbučių nėra
 						</Typography>
 					)}
+
 					{hotels.map((hotel) => (
 						<HotelCard key={hotel.id} hotel={hotel} />
 					))}
 				</Container>
 			</Box>
-			<SnackbarSuccess open={snackbarOpen} message={snackbarMessage} onClose={() => setSnackbarOpen(false)} />
+
+			<SnackbarSuccess
+				open={snackbarOpen}
+				message={snackbarMessage}
+				onClose={() => setSnackbarOpen(false)}
+			/>
 		</>
 	);
 }
