@@ -24,7 +24,6 @@ type Props = {
 export default function SearchBar({ onSearch, onReset }: Props) {
 	const [showOptions, setShowOptions] = useState(false);
 
-	// Pagal užduotį: paieška pagal pavadinimą ir miestą
 	const [name, setName] = useState('');
 	const [city, setCity] = useState('');
 

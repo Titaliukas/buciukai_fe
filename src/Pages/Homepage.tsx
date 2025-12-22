@@ -46,7 +46,7 @@ export default function HomePage() {
 			setHotels(results);
 		} catch (e) {
 			console.error('Search failed', e);
-			// jei norit, galite rodyti snackbar error (reikia atskiro komponento)
+			
 		} finally {
 			setIsSearching(false);
 		}
