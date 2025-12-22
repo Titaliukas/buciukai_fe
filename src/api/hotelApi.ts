@@ -44,4 +44,38 @@ export const getHotelById = async (id: number | string): Promise<Hotel> => {
   };
 };
 
+
+export type HotelSearchFilters = {
+  name?: string;
+  city?: string;
+  starRating?: number;
+  priceFrom?: number;
+  priceTo?: number;
+  roomTypeId?: number; // 1..5
+  bedTypeId?: number;  // 1..4
+  onlyAvailable?: boolean; // default true
+  sortBy?: 'name' | 'price';
+
+};
+
+
+export async function searchHotels(filters: HotelSearchFilters): Promise<Hotel[]> {
+  const params: Record<string, string | number | boolean> = {};
+
+  if (filters.name) params.name = filters.name;
+  if (filters.city) params.city = filters.city;
+  if (filters.starRating != null) params.starRating = filters.starRating;
+  if (filters.priceFrom != null) params.priceFrom = filters.priceFrom;
+  if (filters.priceTo != null) params.priceTo = filters.priceTo;
+  if (filters.roomTypeId != null) params.roomTypeId = filters.roomTypeId;
+  if (filters.bedTypeId != null) params.bedTypeId = filters.bedTypeId;
+  if (filters.sortBy) params.sortBy = filters.sortBy;
+
+
+  params.onlyAvailable = filters.onlyAvailable ?? true;
+
+  const res = await axiosInstance.get<Hotel[]>('/hotels/search', { params });
+  return res.data;
+}
+
 export default axiosInstance;
